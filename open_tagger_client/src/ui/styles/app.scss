@@ -1,0 +1,125 @@
+@import "ember-power-select";
+@import 'variables-theme.scss';
+@import 'uikit-theme';
+@import 'uikit';
+
+$base-em-color: #64DD17;
+em { color: $base-em-color; }
+
+.uk-navbar-container {
+  position: fixed;
+  top: 0;
+  width: 100%
+}
+
+.uk-input,
+.uk-select,
+.uk-textarea {
+  max-width: 100%;
+  width: 100%;
+  border: 0 none;
+  padding: 0 10px;
+  background: #fff;
+  color: #666;
+  border: 1px solid #e5e5e5;
+  transition: .2s ease-in-out;
+  transition-property: color, background-color, border;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+person,
+place,
+writing,
+event,
+translating,
+event-attended,
+public-event,
+production,
+reading {
+  color: white;
+}
+
+person {
+  background: #1E88E5;
+}
+
+place {
+  background: #43A047;
+}
+
+writing {
+  background: #FF3D00;
+}
+
+event {
+  background: #651FFF;
+}
+
+translating {
+  background: #E65100;
+}
+
+event-attended {
+  background: #FF4081;
+}
+
+production {
+  background: #009688;
+}
+
+reading {
+  background: #0097A7
+}
+
+public-event {
+  background: #AA00FF;
+}
+
+dt {
+
+  &:hover,
+  &:hover+dd {
+    background: lightgreen;
+    cursor: pointer;
+  }
+}
+
+pre {
+  border: none;
+}
+
+.letter-container {
+  height: 70vh;
+  position: unset;
+}
+
+.col {
+  height: 100vh;
+}
+
+.no-carrot {
+  .ember-power-select-status-icon {
+    display: none;
+  }
+}
+
+.power-select-in-modal {
+  z-index: 2000;
+}
+
+tmp {
+  background: black;
+  color: white;
+  font-size: 1.5em;
+}
+
+.no-select {
+  user-select: none;
+}
+
+.pell {
+  border: 2px solid #585858 !important;
+}

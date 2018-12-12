@@ -1,0 +1,63 @@
+{
+  "name": "open-tagger-client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Small description for open-tagger-client goes here",
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "repository": "",
+  "scripts": {
+    "build": "ember build",
+    "lint:hbs": "ember-template-lint .",
+    "lint:js": "eslint .",
+    "start": "EMBER_CLI_MODULE_UNIFICATION=true ember serve",
+    "generate": "EMBER_CLI_MODULE_UNIFICATION=true ember generate",
+    "test": "ember test"
+  },
+  "devDependencies": {
+    "@ember-decorators/babel-transforms": "^2.1.1",
+    "@ember/jquery": "^0.5.1",
+    "@ember/optional-features": "^0.6.1",
+    "babel-eslint": "^8.2.6",
+    "broccoli-asset-rev": "^2.7.0",
+    "ember-ajax": "^3.0.0",
+    "ember-auto-import": "^1.2.13",
+    "ember-cli": "github:ember-cli/ember-cli",
+    "ember-cli-app-version": "^3.0.0",
+    "ember-cli-babel": "^6.6.0",
+    "ember-cli-dependency-checker": "^3.0.0",
+    "ember-cli-eslint": "^4.2.1",
+    "ember-cli-htmlbars": "^3.0.0",
+    "ember-cli-htmlbars-inline-precompile": "^1.0.0",
+    "ember-cli-inject-live-reload": "^1.8.2",
+    "ember-cli-qunit": "^4.3.2",
+    "ember-cli-sass": "^8.0.1",
+    "ember-cli-sri": "^2.1.0",
+    "ember-cli-string-helpers": "^1.9.0",
+    "ember-cli-template-lint": "^1.0.0-beta.1",
+    "ember-cli-uglify": "^2.0.0",
+    "ember-concurrency": "^0.8.23",
+    "ember-data": "github:emberjs/data#master",
+    "ember-decorators": "^2.5.0",
+    "ember-export-application-global": "^2.0.0",
+    "ember-fetch": "^5.1.3",
+    "ember-load-initializers": "^1.1.0",
+    "ember-maybe-import-regenerator": "^0.1.6",
+    "ember-pell": "^1.4.1",
+    "ember-power-select-with-create": "^0.6.1",
+    "ember-resolver": "^5.0.1",
+    "ember-source": "https://s3.amazonaws.com/builds.emberjs.com/canary/shas/bc505f596c69d585d3f5b65dc50df6d802460bdb.tgz",
+    "ember-truth-helpers": "^2.1.0",
+    "ember-uikit": "^0.7.1",
+    "eslint-plugin-ember": "^5.0.0",
+    "loader.js": "^4.2.3",
+    "sass": "^1.14.0"
+  },
+  "engines": {
+    "node": "6.* || >= 8.*"
+  }
+}

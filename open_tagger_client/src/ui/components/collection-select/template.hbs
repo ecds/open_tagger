@@ -1,0 +1,9 @@
+{{#power-select-with-create
+  class='uk-select'
+  options=repo.collections
+  selected=selectedCollection
+  placeholder='Select or create collection'
+  onchange=@change
+  oncreate=@create as |collection selected|}}
+  {{collection.label}}
+{{/power-select-with-create}}

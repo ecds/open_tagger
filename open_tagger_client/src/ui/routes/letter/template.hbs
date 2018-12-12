@@ -1,0 +1,83 @@
+{{outlet}}
+<div uk-grid>
+  {{#if model.letter.content}}
+  <div class='uk-width-1-2 col'>
+
+     {{#if queryText}}
+    <form class='uk-form-stacked'>
+    <legend class="uk-legend">Tag Entity</legend>
+    <section class='uk-margin'>
+      <em class='uk-text-bold uk-text-large'>{{queryText}}</em>
+    </section>
+    <section class='uk-margin'>
+      <UkButton @on-click={{action 'reset'}} @color='primary'>Deselect</UkButton>
+    </section>
+
+    {{#if newEntity}}
+        {{pell-editor class='pell' value=newEntity.suggestion onChange=(action (mut newEntity.suggestion))}}
+        <UkButton @color='primary' @on-click={{action 'saveSuggestion'}}>Save</UkButton>
+    {{else}}      
+      <section class='uk-margin'>
+        {{#if model.entityTypes}}
+      <label class='uk-form-label' for='select-type'>Type</label>
+
+      {{/if}}
+      <select id='select-type' class='uk-select' onchange={{action 'setType'}}>
+        <option value='' selected>Select Type</option>
+        {{#each model.entityTypes as |type|}}
+        <option value={{type.id}} selected={{eq entityType type.label}}>{{type.label}}</option>
+        {{/each}}
+      </select>
+      </section>
+      {{#if selectedType}}
+      <section>
+        {{#if matches}}
+        <h3>Matches</h3>
+        <dl class='uk-description-list uk-description-list-divider'>
+          {{#each matches as |match|}}
+          <dt role='button' onclick={{action 'addExistingLiteral' match}}>{{match.entity.label}}</dt>
+          <dd role='button' onclick={{action 'addExistingLiteral' match}}>{{if match.entity.notes match.notes 'No description'}}</dd>
+          {{/each}}
+        </dl>
+      {{/if}}
+      {{#if results}}
+      <h3>Suggestions from Database</h3>
+      <dl class='uk-description-list uk-description-list-divider'>
+        {{#each results as |result|}}
+        <dt role='button' onclick={{action 'addLiteral' result}}>{{result.label}}</dt>
+        <dd role='button' onclick={{action 'addLiteral' result}}>{{if result.notes result.notes 'No description'}}</dd>
+        {{/each}}
+      </dl>
+      {{else}}
+
+        <i>No suggestions found</i>
+      {{/if}}
+      </section>
+      <section>
+      <UkButton @on-click={{perform flagEntity}} @color='primary'>Not Sure</UkButton>
+      <UkButton @on-click={{action 'suggestNewEntity'}} @color='secondary'>Suggest New {{selectedType.label}}</UkButton>
+      </section>
+      {{/if}}
+    {{/if}}
+    </form>
+    {{else}}
+        <h1 class="uk-heading-hero uk-text-muted uk-text-uppercase uk-text-center">Select text to tag</h1>
+    {{/if}}
+  </div>
+  <div class='uk-width-1-2 col'>
+    <div class='uk-panel uk-panel-scrollable letter-container {{if queryText 'no-select'}}'>
+      <LettersView @letter={{model.letter}} @select={{action 'setSelected'}}>
+        {{{model.letter.content}}}
+      </LettersView>
+    </div>
+  </div>
+  {{else}}
+  <div class='uk-width-1-1'>
+    <LetterInput @setLetter={{action 'setLetter'}} @letterContent={{letterContent}} class='letter-container' />
+  </div>
+  {{/if}}
+
+  {{!-- <UkModal @modal={{modal}} @on-hidden={{action 'cancel'}}> --}}
+   
+  {{!-- </UkModal> --}}
+</div>

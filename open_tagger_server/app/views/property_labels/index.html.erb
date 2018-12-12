@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Property Labels</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @property_labels.each do |property_label| %>
+      <tr>
+        <td><%= link_to 'Show', property_label %></td>
+        <td><%= link_to 'Edit', edit_property_label_path(property_label) %></td>
+        <td><%= link_to 'Destroy', property_label, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Property Label', new_property_label_path %>

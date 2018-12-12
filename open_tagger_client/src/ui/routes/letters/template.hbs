@@ -1,0 +1,9 @@
+<ul>
+  {{#each model as |letter|}}
+  <li>
+    {{#link-to 'letter' letter}}
+      {{letter.letter_code}}
+    {{/link-to}}
+  </li>
+  {{/each}}
+</ul>
