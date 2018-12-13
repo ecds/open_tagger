@@ -8,10 +8,10 @@ class Letter < ApplicationRecord
   has_many :respositories, through: :letter_repositories
 
   has_many :letter_recipents
-  has_many :recipents, through: :letter_recipents, source: :person
+  has_many :recipents, through: :letter_recipents, source: :entity
 
-  has_many :mentioned_people
-  has_many :people, through: :mentioned_people
+  has_many :letter_entities
+  has_many :entities, through: :letter_entities
 
   belongs_to :sent_to, class_name: 'LocationLiteral', foreign_key: 'sent_to_actual_id', optional: true
   belongs_to :sent_from, class_name: 'LocationLiteral', foreign_key: 'sent_from_actual_id', optional: true
@@ -19,9 +19,9 @@ class Letter < ApplicationRecord
   belongs_to :city, class_name: 'Place', foreign_key: 'city_id', optional: true
   belongs_to :location, optional: true
   belongs_to :letter_type, optional: true
-  belongs_to :sender, class_name: 'Person', foreign_key: 'sender_id', optional: true
-  belongs_to :recipent, class_name: 'Person', foreign_key: 'recipent_id', optional: true
-  belongs_to :owner, class_name: 'Person', foreign_key: 'owner_rights_id', optional: true
+  belongs_to :sender, class_name: 'Entity', foreign_key: 'sender_id', optional: true
+  # belongs_to :recipent, class_name: 'Entity', foreign_key: 'recipent_id', optional: true
+  # belongs_to :owner, class_name: 'Person', foreign_key: 'owner_rights_id', optional: true
   belongs_to :language, optional: true
   belongs_to :place_literal, optional: true
 
@@ -41,6 +41,6 @@ class Letter < ApplicationRecord
     #
     def set_letter_code
       return if letter_code.present?
-      self.letter_code = "#{sender.first[0..1].upcase}#{sender.last[0..1].upcase} #{date_sent.strftime('%d-%m-%y')} #{recipents.first.first[0..1].upcase}#{recipents.first.last[0..1].upcase}"
+      self.letter_code = "#{sender.label.split(' ').first[0..1].upcase}#{sender.label.split(' ').last[0..1].upcase} #{date_sent.strftime('%d-%m-%y')} #{recipents.first.label.split(' ').first[0..1].upcase}#{recipents.first.label.split(' ')[-1][0..1].upcase}"
     end
 end

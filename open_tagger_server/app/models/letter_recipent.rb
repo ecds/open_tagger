@@ -1,4 +1,4 @@
 class LetterRecipent < ApplicationRecord
   belongs_to :letter
-  belongs_to :person
+  belongs_to :entity
 end

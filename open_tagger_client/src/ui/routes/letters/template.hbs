@@ -1,7 +1,7 @@
 <ul>
   {{#each model as |letter|}}
   <li>
-    {{#link-to 'letter' letter}}
+    {{#link-to 'letter' letter.id}}
       {{letter.letter_code}}
     {{/link-to}}
   </li>

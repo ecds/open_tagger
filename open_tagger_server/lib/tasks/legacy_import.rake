@@ -24,6 +24,49 @@ namespace :legacy_import do
     puts 'DONE!!!!'
   end
 
+  task :people_entities, [:dump] => :environment do |t, args|
+    options = Rack::Utils.parse_nested_query(args[:dump])
+    file = File.read(options['dump'])
+    d = JSON.parse(file)
+
+    p 'Creating People'
+    count = 0
+    d.select { |d1| d1['model'] == 'people.person' }.each do |person|
+      next unless Person.find_by(legacy_pk: person['pk']).nil?
+      p = Entity.new(label: "#{person['fields']['first_name']} #{person['fields']['last_name']}")
+      p.entity_type = EntityType.find_by(label: 'People')
+      p.legacy_pk = person['pk']
+      p.save
+    end
+    puts 'DONE!!!!'
+  end
+
+  task :letters, [:dump] => :environment do |t, args|
+    require 'date'
+    options = Rack::Utils.parse_nested_query(args[:dump])
+    file = File.read(options['dump'])
+    d = JSON.parse(file)
+
+    p 'Creating Letters'
+    count = 0
+    d.select { |d1| d1['model'] == 'letters.letter' }.each do |letter|
+      # next unless Person.find_by(legacy_pk: person['pk']).nil?
+      l = Letter.new
+      unknown = Entity.search_by_label('unknown').by_type('Person').first
+      sender = Entity.find_by('lower(label) = ?', letter['fields']['sender'].downcase)
+      recipent = Entity.find_by('lower(label) = ?', letter['fields']['addressed_to_actual'].downcase)
+      l.sender = sender.nil? ? sender : unknown
+      if recipent.nil?
+        l.recipents << unknown
+      else
+        l.recipents << recipent
+      end
+      l.date_sent = Date.new("19#{letter['fields']['year']}".to_i, letter['fields']['month'], letter['fields']['day'])
+      l.save
+    end
+    puts 'DONE!!!!'
+  end
+
   task :places, [:dump] => :environment do |t, args|
     options = Rack::Utils.parse_nested_query(args[:dump])
     file = File.read(options['dump'])

@@ -1,7 +1,7 @@
 import Controller from '@ember/controller';
 import { action } from '@ember-decorators/object';
 import { A } from '@ember/array';
-import { task } from 'ember-concurrency';
+import { task, timeout } from 'ember-concurrency';
 // import $ from 'jquery';
 // import UIkit from 'uikit';
 
@@ -24,13 +24,42 @@ export default class LettersLetterController extends Controller {
     });
     this.get('newLiteral').setProperties({ review: true });
     yield this.get('addLiteral').perform(unknownEntity)
-    this.send('tagEntity', unknownEntity);
+    this.get('tagEntity').perform(unknownEntity);
   })
 
   addLiteral = task(function * (entity) {
     this.get('newLiteral').set('entity', entity);
     yield this.newLiteral.save();
     return true;
+  })
+
+  tagEntity = task(function * (entity) {
+    let tmpElement = document.querySelector('tmp');
+    let newElement = document.createElement(this.selectedType.label.toLocaleLowerCase().dasherize());
+    yield timeout(300);
+    newElement.setAttribute('profile_id', entity.id);
+    yield timeout(300);
+    newElement.innerHTML = tmpElement.innerHTML
+    tmpElement.parentNode.replaceChild(newElement, tmpElement);
+    yield timeout(300);
+    this.model.letter.setProperties({
+      content: document.getElementsByTagName('pre')[0].innerHTML
+    });
+    yield this.model.letter.save();
+    this.send('reset');
+  })
+
+  unTagEntity = task(function * () {
+    let content = document.getElementsByTagName('pre')[0].innerHTML;
+    content = content.replace(/<tmp>/g, '');
+    content = content.replace(/<\/tmp>/g, '');
+    
+    this.model.letter.setProperties({
+      content
+    });
+    document.getElementsByTagName('pre')[0].innerHTML = content;
+    yield timeout(10);
+    // yield this.model.letter.save();
   })
 
   @action
@@ -70,7 +99,7 @@ export default class LettersLetterController extends Controller {
   @action
   setLetter(content) {
     this.model.letter.setProperties({
-      content: content
+      content
     });
     this.model.letter.save();
   }
@@ -113,7 +142,7 @@ export default class LettersLetterController extends Controller {
   // assocEntity(entity) {
   //   this.newLiteral.set('entity', entity);
   //   this.newLiteral.save().then(() => {
-  //     this.send('tagEntity', entity);
+  //   get('tagEntity').  this.perform(entity);
   //   })
   // }
 
@@ -124,7 +153,7 @@ export default class LettersLetterController extends Controller {
   //     entity_type: this.selectedType
   //   });
   //   this.send('addLiteral', newEntity).then(() => {
-  //     this.send('tagEntity', newEntity);
+  //   get('tagEntity').  this.perform(newEntity);
   //   }, () => {
   //     // error
   //   })
@@ -165,7 +194,7 @@ export default class LettersLetterController extends Controller {
   addLiteral(entity) {
     this.newLiteral.set('entity', entity)
     this.newLiteral.save().then(() => {
-      this.send('tagEntity', entity);
+      this.get('tagEntity').perform(entity);
     });
   }
 
@@ -173,7 +202,7 @@ export default class LettersLetterController extends Controller {
   saveSuggestion() {
     this.newEntity.save().then(() => {
       this.get('addLiteral').perform(this.newEntity).then(() => {
-        this.send('tagEntity', this.newEntity);
+        this.get('tagEntity').perform(this.newEntity);
       });
     })
   }
@@ -185,7 +214,7 @@ export default class LettersLetterController extends Controller {
   
   @action
   reset() {
-    this.send('unTagEntity');
+    this.get('unTagEntity').perform();
     this.set('newLiteral', null);
     this.set('newEntity', null);
     this.set('queryText', null);
@@ -200,30 +229,26 @@ export default class LettersLetterController extends Controller {
     this.set('matches', A([]));
   }
 
-  @action
-  tagEntity(entity) {
-    let tmpElement = document.querySelector('tmp');
-    let newElement = document.createElement(this.selectedType.label.toLocaleLowerCase().dasherize());
-    newElement.setAttribute('profile_id', entity.id);
-    newElement.innerHTML = tmpElement.innerHTML
-    tmpElement.parentNode.replaceChild(newElement, tmpElement);
-    this.model.letter.setProperties({
-      content: document.getElementsByTagName('pre')[0].innerHTML
-    });
-    this.model.letter.save().then(() => {
-      this.send('reset');
-    });
-  }
-
-  @action
-  unTagEntity() {
-    this.model.letter.setProperties({
-      content: this.model.letter.content.replace(/<tmp>/g, '')
-    });
-    this.model.letter.setProperties({
-      content: this.model.letter.content.replace(/<\/tmp>/g, '')
-    });
-  }
+  // @action
+  // tagEntity(entity) {
+  //   let tmpElement = document.querySelector('tmp');
+  //   let newElement = document.createElement(this.selectedType.label.toLocaleLowerCase().dasherize());
+  //   newElement.setAttribute('profile_id', entity.id);
+  //   newElement.innerHTML = tmpElement.innerHTML
+  //   tmpElement.parentNode.replaceChild(newElement, tmpElement);
+  //   // let content = document.getElementsByTagName('pre')[0].innerHTML;
+  //   // console.log(content);
+  //   // this.model.letter.setProperties({
+  //   //   content: '.'
+  //   // });
+  //   // this.model.letter.setProperties({
+  //   //   content
+  //   // });
+  //   this.model.letter.save().then(() => {
+  //     this.send('reset');
+  //   });
+  // }
+  
 
   @action
   associateRepo(repo) {

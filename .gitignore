@@ -34,8 +34,8 @@ config/master.key
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-/dist/
-/tmp/
+/open_tagger_client/dist/
+/open_tagger_client/tmp/
 
 # dependencies
 bower_components/

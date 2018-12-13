@@ -29,7 +29,7 @@ class LettersController < ApplicationController
   def create
     @letter = Letter.find_or_create_by(letter_params)
     if @letter.save
-      response = render json: @letter, status: :created, location: "//letters/#{@letter.id}"
+      response = render json: @letter, status: :created, location: "/letters/#{@letter.id}"
       return response
     else
       render json: @letter.errors, status: :unprocessable_entity

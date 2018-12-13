@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_11_182904) do
+ActiveRecord::Schema.define(version: 2018_12_13_155122) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 2018_12_11_182904) do
     t.datetime "updated_at", null: false
     t.bigint "entity_type_id"
     t.text "suggestion"
+    t.integer "legacy_pk"
     t.index ["entity_type_id"], name: "index_entities_on_entity_type_id"
   end
 
@@ -69,9 +70,19 @@ ActiveRecord::Schema.define(version: 2018_12_11_182904) do
     t.string "native_name"
   end
 
-  create_table "letter_recipents", force: :cascade do |t|
-    t.uuid "person_id"
+  create_table "letter_entities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "entity_id"
     t.uuid "letter_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entity_id"], name: "index_letter_entities_on_entity_id"
+    t.index ["letter_id"], name: "index_letter_entities_on_letter_id"
+  end
+
+  create_table "letter_recipents", force: :cascade do |t|
+    t.uuid "letter_id"
+    t.uuid "entity_id"
+    t.index ["entity_id"], name: "index_letter_recipents_on_entity_id"
   end
 
   create_table "letter_repositories", force: :cascade do |t|
@@ -228,4 +239,5 @@ ActiveRecord::Schema.define(version: 2018_12_11_182904) do
     t.string "title"
   end
 
+  add_foreign_key "letter_recipents", "entities"
 end

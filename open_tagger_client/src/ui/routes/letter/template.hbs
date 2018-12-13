@@ -67,13 +67,13 @@
   <div class='uk-width-1-2 col'>
     <div class='uk-panel uk-panel-scrollable letter-container {{if queryText 'no-select'}}'>
       <LettersView @letter={{model.letter}} @select={{action 'setSelected'}}>
-        {{{model.letter.content}}}
+        {{!-- {{{model.letter.content}}} --}}
       </LettersView>
     </div>
   </div>
   {{else}}
   <div class='uk-width-1-1'>
-    <LetterInput @setLetter={{action 'setLetter'}} @letterContent={{letterContent}} class='letter-container' />
+      <LetterInput @setLetter={{action 'setLetter'}} @letterContent={{letterContent}} class='letter-container' />
   </div>
   {{/if}}
 

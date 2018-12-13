@@ -13,7 +13,7 @@ export default class LetterInputComponent extends Component {
 
   paste() {
     window.setTimeout(() => {
-      const pastedText = this.element.innerText;
+      const pastedText = `${this.element.innerText}`;
       this.set('contenteditable', false);
       this.element.innerHTML = null;
       // Call action passed in from controller.
