@@ -28,6 +28,7 @@ export default Model.extend({
   sides: attr('number'),
   'recipient_list': attr('string'),
   'legacy_pk': attr('number'),
+  entities: hasMany('entity'),
 
   dateSent: computed('date_sent', function() {
     const date = new Date(this.get('date_sent'));

@@ -12,5 +12,6 @@ class LetterSerializer < ActiveModel::Serializer
   # belongs_to :owner
   # belongs_to :language
   # belongs_to :place_literal
+  has_many :entities
   attributes :id, :content, :date_sent, :letter_code, :recipient_list, :legacy_pk
 end

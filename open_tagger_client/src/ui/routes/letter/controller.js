@@ -108,6 +108,7 @@ export default class LettersLetterController extends Controller {
       elementToTag.parentNode.replaceChild(newElement, elementToTag);
     }
     yield timeout(300);
+    this.model.letter.get('entities').pushObject(entity);
     yield this.get('updateLetter').perform();
     this.send('reset');
   })

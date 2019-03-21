@@ -71,7 +71,8 @@ class LettersController < ApplicationController
                 :last,
                 :wikidata_id,
                 :literals,
-                :content
+                :content,
+                :entities
               ]
         )
       end
