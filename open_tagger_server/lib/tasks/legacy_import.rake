@@ -34,7 +34,7 @@ namespace :legacy_import do
     d.select { |d1| d1['model'] == 'people.person' }.each do |person|
       next unless Person.find_by(legacy_pk: person['pk']).nil?
       p = Entity.new(label: "#{person['fields']['first_name']} #{person['fields']['last_name']}")
-      p.entity_type = EntityType.find_by(label: 'People')
+      p.entity_type = EntityType.find_by(label: 'Person')
       p.legacy_pk = person['pk']
       p.save
     end
