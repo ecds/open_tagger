@@ -2,13 +2,13 @@ class Entity < ApplicationRecord
   include PgSearch
 
   belongs_to :entity_type
-  has_one :person
-  has_one :place
+  # has_one :person
+  # has_one :place
   has_many :literals
   has_many :letter_entities
   has_many :letters, through: :letter_entities
 
-  before_save :_get_formal_name
+  # before_save :_get_formal_name
 
   scope :by_type, lambda { |type|
     joins(:entity_type)

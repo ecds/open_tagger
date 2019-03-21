@@ -1,9 +1,9 @@
-<ul>
-  {{#each model as |letter|}}
-  <li>
-    {{#link-to 'letter' letter.id}}
-      {{letter.letter_code}}
-    {{/link-to}}
-  </li>
-  {{/each}}
-</ul>
+{{#data-sorter data=byDate as |ds|}}
+{{#data-table data=ds.data classNames=tableClassNames onRowSingleClick=(action 'onRowSingleClick')
+         as |t|}}
+    {{t.column propertyName='letter_code' name='Letter Code'}}
+    {{t.sortableColumn propertyName='legacy_pk' name='Legacy ID' sortinformationupdated=(action ds.onsortfieldupdated)}}
+    {{t.sortableColumn propertyName='recipient_list' name='Recipients' sortinformationupdated=(action ds.onsortfieldupdated)}}
+    {{t.sortableColumn propertyName='dateSent' name='Date Sent' sortinformationupdated=(action ds.onsortfieldupdated)}}
+{{/data-table}}
+{{/data-sorter}}

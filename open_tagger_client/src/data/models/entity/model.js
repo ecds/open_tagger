@@ -9,6 +9,6 @@ const {
 export default Model.extend({
   label: attr('string'),
   literals: hasMany('literal'),
-  entity_type: belongsTo('entity_type'),
+  entityType: belongsTo('entity-type'),
   suggestion: attr('string')
 });

@@ -1,6 +1,6 @@
 class LetterSerializer < ActiveModel::Serializer
   # has_many :repositories
-  # has_many :recipents
+  # has_many :recipients
   # belongs_to :sent_to
   # belongs_to :sent_from
   # belongs_to :country
@@ -8,9 +8,9 @@ class LetterSerializer < ActiveModel::Serializer
   # belongs_to :location
   # belongs_to :letter_type
   # belongs_to :sender
-  # belongs_to :recipent
+  # belongs_to :recipient
   # belongs_to :owner
   # belongs_to :language
   # belongs_to :place_literal
-  attributes :id, :content, :date_sent, :letter_code
+  attributes :id, :content, :date_sent, :letter_code, :recipient_list, :legacy_pk
 end

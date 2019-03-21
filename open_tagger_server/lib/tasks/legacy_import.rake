@@ -54,12 +54,12 @@ namespace :legacy_import do
       l = Letter.new
       unknown = Entity.search_by_label('unknown').by_type('Person').first
       sender = Entity.find_by('lower(label) = ?', letter['fields']['sender'].downcase)
-      recipent = Entity.find_by('lower(label) = ?', letter['fields']['addressed_to_actual'].downcase)
+      recipient = Entity.find_by('lower(label) = ?', letter['fields']['addressed_to_actual'].downcase)
       l.sender = sender.nil? ? sender : unknown
-      if recipent.nil?
-        l.recipents << unknown
+      if recipient.nil?
+        l.recipients << unknown
       else
-        l.recipents << recipent
+        l.recipients << recipient
       end
       l.date_sent = Date.new("19#{letter['fields']['year']}".to_i, letter['fields']['month'], letter['fields']['day'])
       l.save

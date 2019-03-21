@@ -2,6 +2,10 @@ import Route from '@ember/routing/route';
 import RSVP from 'rsvp';
 
 export default class LettersLetterRoute extends Route {
+  afterModel() {
+    window.scrollTo(0,0)
+  }
+
   model(params) {
     // return this.store.findAll('entity');
     return RSVP.hash({

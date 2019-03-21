@@ -1,0 +1,13 @@
+<div class='uk-margin uk-grid-small uk-child-width-auto uk-grid'>
+  {{#each types as |entityType|}}
+  <label>
+  {{input type='checkbox' class='uk-checkbox' name=entityType.label checked=entityType.show change=(pipe (toggle 'show' entityType) (action 'toggleTag' entityType))}}
+  {{entityType.label}}
+  </label>
+  {{/each}}
+  <label>
+  {{input type='checkbox' class='uk-checkbox' name='flagged' checked=showFlagged change=(pipe (toggle 'showFlagged' this) (action 'toggleTag' 'flagged'))}}
+  Flagged
+  </label>
+</div>
+{{yield}}

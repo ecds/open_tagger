@@ -1,4 +1,6 @@
 import DS from 'ember-data';
+import { computed } from '@ember/object';
+
 const {
   Model,
   attr,
@@ -10,7 +12,7 @@ export default Model.extend({
   letter_code: attr('string'),
   content: attr('string'),
   recipients: hasMany('people'),
-  'date_sent': attr(),
+  'date_sent': attr('date'),
   month: attr('number'),
   year: attr('number'),
   'sent_from_actual': belongsTo('literal'),
@@ -23,5 +25,12 @@ export default Model.extend({
   postmark: attr('string'),
   verified: attr('boolean'),
   envelope: attr('string'),
-  sides: attr('number')
+  sides: attr('number'),
+  'recipient_list': attr('string'),
+  'legacy_pk': attr('number'),
+
+  dateSent: computed('date_sent', function() {
+    const date = new Date(this.get('date_sent'));
+    return `${date.getDate()} ${date.toLocaleString('en-us', { month: 'long' })} ${date.getFullYear()}`;
+  })
 });

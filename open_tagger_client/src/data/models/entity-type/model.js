@@ -1,11 +1,12 @@
 import DS from 'ember-data';
-const {
-  Model,
-  attr,
-  hasMany
-} = DS;
+import { computed } from '@ember/object';
+const { Model, attr, hasMany } = DS;
 
 export default Model.extend({
   label: attr('string'),
-  'property-labels': hasMany('property-label')
+  entities: hasMany('entity'),
+  'property-labels': hasMany('property-label'),
+  friendlyLabel: computed('label', function() {
+    return this.label.toLocaleLowerCase().dasherize();
+  })
 });

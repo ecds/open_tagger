@@ -3,12 +3,17 @@ class LiteralsController < ApplicationController
 
   # GET /literals?params
   def index
+    @existing
     if params.nil?
       render json: Literal.all
     elsif params[:text].present? && params[:type].present?
-      existing = Literal.by_text_and_type(params[:text], params[:type])
-      if existing.present?
-        render json: existing, include: [:entity]
+      if params[:search]
+        @existing = Literal.by_text_and_type(params[:text], params[:type])
+      else
+        @existing = Literal.by_text_and_type(params[:text], params[:type]).first
+      end
+      if @existing.present?
+        render json: @existing, include: [:entity]
       else
         Literal.create(text: params[:text])
         render json: Literal.where(text: params[:text]).where(entity: nil)

@@ -3,8 +3,11 @@
 @import 'uikit-theme';
 @import 'uikit';
 
-$base-em-color: #64DD17;
-em { color: $base-em-color; }
+// $base-em-color: #64DD17;
+// em { color: $base-em-color; }
+
+$tag-background: #424242;
+$tag-color: white;
 
 .uk-navbar-container {
   position: fixed;
@@ -30,53 +33,125 @@ pre {
   white-space: pre-wrap;
 }
 
-person,
-place,
-writing,
-event,
-translating,
-event-attended,
-public-event,
-production,
-reading {
-  color: white;
+.person {
+  person {
+    background: $tag-background;
+    color: $tag-color;
+  }
 }
 
-person {
-  background: #1E88E5;
+.place {
+  place {
+    background: $tag-background;
+    color: $tag-color;
+  }
 }
 
-place {
-  background: #43A047;
+.writing {
+  writing {
+    background: $tag-background;
+    color: $tag-color;
+  }
 }
 
-writing {
-  background: #FF3D00;
+.event {
+  event {
+    background: $tag-background;
+    color: $tag-color;
+  }
 }
 
-event {
-  background: #651FFF;
+.translating {
+  translating {
+    background: $tag-background;
+    color: $tag-color;
+  }
 }
 
-translating {
-  background: #E65100;
+.event-attended {
+  event-attended {
+    background: $tag-background;
+    color: $tag-color;
+  }
 }
 
-event-attended {
-  background: #FF4081;
+.public-event {
+  public-event {
+    background: $tag-background;
+    color: $tag-color;
+  }
 }
 
-production {
-  background: #009688;
+.production {
+  production {
+    background: $tag-background;
+    color: $tag-color;
+  }
 }
 
-reading {
-  background: #0097A7
+.reading {
+  reading {
+    background: #424242;
+    color: white;
+  }
 }
 
-public-event {
-  background: #AA00FF;
+.flag {
+  background: transparent !important;
+  color: #666 !important;
 }
+
+.flagged {
+  .flag {
+    background: #D50000 !important;
+    color: white !important;
+  }
+}
+
+// person,
+// .person {
+//   background: #1E88E5;
+// }
+
+// place,
+// .place {
+//   background: #43A047;
+// }
+
+// writing,
+// .writing {
+//   background: #FF3D00;
+// }
+
+// event,
+// .event {
+//   background: #651FFF;
+// }
+
+// translating,
+// .translating {
+//   background: #E65100;
+// }
+
+// event-attended,
+// .event-attended {
+//   background: #FF4081;
+// }
+
+// production,
+// .production {
+//   background: #009688;
+// }
+
+// reading,
+// .reading {
+//   background: #0097A7
+// }
+
+// public-event,
+// .public-event {
+//   background: #AA00FF;
+// }
 
 dt {
 
@@ -122,4 +197,10 @@ tmp {
 
 .pell {
   border: 2px solid #585858 !important;
+}
+
+#edit-card {
+  position: absolute;
+  top: -100px;
+  left: -100px;
 }

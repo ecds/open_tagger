@@ -79,10 +79,10 @@ ActiveRecord::Schema.define(version: 2018_12_13_155122) do
     t.index ["letter_id"], name: "index_letter_entities_on_letter_id"
   end
 
-  create_table "letter_recipents", force: :cascade do |t|
+  create_table "letter_recipients", force: :cascade do |t|
     t.uuid "letter_id"
     t.uuid "entity_id"
-    t.index ["entity_id"], name: "index_letter_recipents_on_entity_id"
+    t.index ["entity_id"], name: "index_letter_recipients_on_entity_id"
   end
 
   create_table "letter_repositories", force: :cascade do |t|
@@ -239,5 +239,5 @@ ActiveRecord::Schema.define(version: 2018_12_13_155122) do
     t.string "title"
   end
 
-  add_foreign_key "letter_recipents", "entities"
+  add_foreign_key "letter_recipients", "entities"
 end

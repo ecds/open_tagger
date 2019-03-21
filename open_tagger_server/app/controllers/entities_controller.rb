@@ -7,7 +7,7 @@ class EntitiesController < ApplicationController
       render json: Entity.all
     elsif params[:query].present? && params[:type].present?
       if params[:query] == 'unknown'
-        render json: Entity.find_or_create_by(label: params[:query], entity_type: EntityType.find_by(label: params[:type]))
+        render json: [Entity.find_or_create_by(label: params[:query], entity_type: EntityType.find_by(label: params[:type]))]
       else
         render json: Entity.search_by_label(params[:query]).by_type(params[:type])
       end
@@ -16,6 +16,7 @@ class EntitiesController < ApplicationController
 
   # GET /entities/1
   def show
+    render json: @entity, location: "/entities/#{@entity.id}"
   end
 
   # GET /entities/new
@@ -30,11 +31,13 @@ class EntitiesController < ApplicationController
   # POST /entities
   def create
     @entity = Entity.new(entity_params)
+    puts params[:data]
+    @entity.entity_type = EntityType.find(params[:data][:'entity-type'][:data][:id])
 
-    if @entity.save
+    if @entity.save!
       render json: @entity, location: "/entities/#{@entity.id}"
     else
-      render json: @entity, location: "/entities/#{@entity.id}"
+      render json: @entity
     end
   end
 
