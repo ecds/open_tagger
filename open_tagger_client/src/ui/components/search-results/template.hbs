@@ -1,0 +1,52 @@
+<section class="uk-margin">
+  <section class="uk-text-large">
+    Search Results
+  </section>
+
+  <ul uk-accordion>
+    {{#if @matches}}
+      <li>
+        <a class="uk-accordion-title" href="#">
+          Matches {{@matches.length}}
+        </a>
+        <dl class="uk-description-list uk-description-list-divider uk-accordion-content">
+          {{#each @matches as |match|}}
+            <dt role="button" onclick={{action @addExistingLiteral match}}>
+              {{{match.entity.label}}}
+            </dt>
+            <dd role="button" onclick={{action @addExistingLiteral match}}>
+              {{#if match.entity.description}}
+                {{{match.entity.description}}}
+              {{else}}
+                "No description"
+              {{/if}}
+            </dd>
+          {{/each}}
+        </dl>
+      </li>
+    {{/if}}
+    {{#if results}}
+      <li>
+        <a class="uk-accordion-title" href="#">
+          Suggestions from database {{@results.length}}
+        </a>
+        <dl class="uk-description-list uk-description-list-divider  uk-accordion-content">
+          {{#each @results as |result|}}
+            <dt role="button" onclick={{perform @addLiteral result}}>
+              {{result.label}}
+            </dt>
+            <dd role="button" onclick={{perform @addLiteral result}}>
+              {{if result.description result.description "No description"}}
+            </dd>
+          {{/each}}
+        </dl>
+      </li>
+      {{!-- {{else}}
+      <li>
+        <i>
+        No suggestions found
+        </i>
+      </li> --}}
+    {{/if}}
+  </ul>
+</section>

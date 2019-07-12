@@ -1,0 +1,2 @@
+class LetterOwner < ApplicationRecord
+end

@@ -1,0 +1,2 @@
+class EntityLink < ApplicationRecord
+end

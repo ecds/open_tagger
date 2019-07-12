@@ -1,0 +1,57 @@
+{{outlet}}
+{{#if literalToEdit}}
+              <section class="uk-margin">
+                <label class="uk-form-label uk-text-large">
+                  Entity Label
+                </label>
+                <section class="uk-form-controls">
+                  {{pell-editor
+                    class="pell"
+                    value=entityToEdit.label
+                    onChange=(action (mut entityToEdit.label))
+              pellOptions=editorOptions
+                  }}
+                </section>
+              </section>
+                <section class="uk-margin">
+                <label class="uk-form-label uk-text-large">
+                  Description
+                </label>
+                <section class="uk-form-controls">
+                  {{pell-editor
+                    class="pell"
+                    value=entityToEdit.description
+                    onChange=(action (mut entityToEdit.description))
+              pellOptions=editorOptions
+                  }}
+                </section>
+                <section class="uk-form-controls uk-margin">
+                  {{#if entityToEdit.properties}}
+                    {{#each-in entityToEdit.properties as |key value|}}
+                      <label class="uk-form-label uk-text-large uk-margin">
+                        {{key}}
+                      </label>
+                      <section class="uk-form-controls">
+                        {{pell-editor
+                          class="pell"
+                          value=value
+                          onChange=(action "updateProperty" key)
+                          pellOptions=editorOptions
+                        }}
+                      </section>
+                    {{/each-in}}
+                  {{/if}}
+                </section>
+                <section class="uk-form-controls">
+                  <UkButton @color="primary" @on-click={{perform updateEntity}}>
+                    Save
+                  </UkButton>
+                   <UkButton @color="secondary" @on-click={{action "removeTag"}}>
+                    Remove Tag
+                  </UkButton>
+                  <UkButton @color="link" @on-click={{action "reset"}}>
+                    Cancel
+                  </UkButton>
+                </section>
+              </section>
+            {{/if}}

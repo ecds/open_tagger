@@ -1,0 +1,3 @@
+class LetterPublisher < ApplicationRecord
+  
+end
