@@ -12,6 +12,9 @@ Router.map(function() {
   this.route('letter', {
     path: '/letters/:letter_id'
   });
+  this.route('entities', {
+    path: '/entities/:entity_type'
+  });
 });
 
 export default Router;

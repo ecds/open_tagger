@@ -6,15 +6,17 @@ import {
 
 @tagName('pre')
 export default class LettersView extends Component {
+  letterElements = ['PRE', 'CONTENT', 'LETTER', 'METADATA'];
+  
   didInsertElement() {
     this.element.innerHTML = this.letter.content;
   }
 
   mouseUp(event) {
-    if (event.target.tagName !== 'PRE') return;
+    if (!this.letterElements.includes(event.target.tagName)) return;
     if (this.element.contains(document.getElementsByTagName('tmp')[0])) return;
     let selected = document.getSelection();
-    let tmpEl = document.createElement('tmp')
+    let tmpEl = document.createElement('tmp');
     if (document.getSelection().type !== 'Range') return;
     if (selected.rangeCount) {
       let range = selected.getRangeAt(0).cloneRange();
@@ -23,7 +25,7 @@ export default class LettersView extends Component {
       selected.addRange(range);
     }
     // Call action passed in from controller.
-    this.select(selected.toString());
+    this.select(selected.toString(), tmpEl);
   }
 
   contextMenu(event) {
@@ -43,6 +45,7 @@ export default class LettersView extends Component {
 
   click(event) {
     if (event.target.tagName === 'PRE') return;
+    if (document.getSelection().type == 'Range') return;
     this.editTag(event);
   }
 }

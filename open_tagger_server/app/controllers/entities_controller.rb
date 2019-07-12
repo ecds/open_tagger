@@ -11,6 +11,8 @@ class EntitiesController < ApplicationController
       else
         render json: Entity.search_by_label(params[:query]).by_type(params[:type])
       end
+    elsif params[:entity_type].present?
+      render json: Entity.by_type(params[:entity_type])
     end
   end
 
@@ -31,8 +33,8 @@ class EntitiesController < ApplicationController
   # POST /entities
   def create
     @entity = Entity.new(entity_params)
-    puts params[:data]
-    @entity.entity_type = EntityType.find(params[:data][:'entity-type'][:data][:id])
+    p "data!!!!!!!!! #{params[:data]}"
+    @entity.entity_type = EntityType.find(params[:data][:relationships][:'entity-type'][:data][:id])
 
     if @entity.save!
       render json: @entity, location: "/entities/#{@entity.id}"
@@ -43,7 +45,7 @@ class EntitiesController < ApplicationController
 
   # PATCH/PUT /entities/1
   def update
-    if @entity.update(entity_params)
+    if @entity.update!(entity_params)
       render json: @entity, location: "/entities/#{@entity.id}"
     end
   end
@@ -68,7 +70,9 @@ class EntitiesController < ApplicationController
                 :label,
                 :literals,
                 :suggestion,
-                :entity_type
+                :entity_type,
+                :'entity-type',
+                :properties
               ]
         )
     end

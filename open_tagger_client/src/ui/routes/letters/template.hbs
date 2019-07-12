@@ -1,10 +1,11 @@
 {{#data-sorter data=byDate as |ds|}}
-{{#data-table data=ds.data classNames=tableClassNames onRowSingleClick=(action 'onRowSingleClick')
-         as |t|}}
-    {{t.column propertyName='letter_code' name='Letter Code'}}
-    {{t.sortableColumn propertyName='legacy_pk' name='Legacy ID' sortinformationupdated=(action ds.onsortfieldupdated)}}
-    {{t.sortableColumn propertyName='recipient_list' name='Recipients' sortinformationupdated=(action ds.onsortfieldupdated)}}
-    {{t.sortableColumn propertyName='dateSent' name='Date Sent' sortinformationupdated=(action ds.onsortfieldupdated)}}
-    {{t.column propertyName='entities.length' name='Tag Count'}}
-{{/data-table}}
+  {{#data-table data=ds.data classNames=tableClassNames onRowSingleClick=(action "onRowSingleClick")
+          as |t|}}
+    {{t.column propertyName="code" name="Letter Code"}}
+    {{!-- {{t.sortableColumn propertyName="legacy_pk" name="Legacy ID" sortinformationupdated=(action ds.onsortfieldupdated)}} --}}
+    {{!-- {{t.sortableColumn propertyName="recipient_list" name="Recipients" sortinformationupdated=(action ds.onsortfieldupdated)}} --}}
+    {{t.sortableColumn propertyName="dateSent" name="Date Sent" sortinformationupdated=(action ds.onsortfieldupdated)}}
+    {{t.column propertyName="literals.length" name="Tag Count"}}
+  {{/data-table}}
 {{/data-sorter}}
+{{pager-component next=(action "nextPageRequested") previous=(action "prevPageRequested") currentPage=currentPage nextDisabled=nextDisabled}}

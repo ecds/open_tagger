@@ -64,6 +64,10 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 # Linked data stuff
 gem 'json-ld'
 
+# Pagination
+gem 'pagy'
+gem 'pager_api'
+
 # For normalizing addresses
 gem 'nominatim'
 gem 'ruby_postal'
@@ -74,4 +78,8 @@ gem 'dbpedia'
 gem 'sparql'
 gem 'sparql-client'
 gem 'wikidata-client', '~> 0.0.10', require: 'wikidata'
+gem 'google-api-client'
 # gem 'wikipedia-client', path: '/data/wikipedia-client'
+
+# For sting comparisions
+gem 'fuzzy-string-match'

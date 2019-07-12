@@ -33,10 +33,18 @@ pre {
   white-space: pre-wrap;
 }
 
+@mixin flagged() {
+  background: #D50000 !important;
+  color: white !important;
+}
+
 .person {
   person {
     background: $tag-background;
     color: $tag-color;
+    &.flag {
+      @include flagged;
+    }
   }
 }
 
@@ -44,6 +52,9 @@ pre {
   place {
     background: $tag-background;
     color: $tag-color;
+    &.flag {
+      @include flagged;
+    }
   }
 }
 
@@ -51,6 +62,9 @@ pre {
   writing {
     background: $tag-background;
     color: $tag-color;
+    &.flag {
+      @include flagged;
+    }
   }
 }
 
@@ -58,6 +72,9 @@ pre {
   event {
     background: $tag-background;
     color: $tag-color;
+    &.flag {
+      @include flagged;
+    }
   }
 }
 
@@ -65,6 +82,9 @@ pre {
   translating {
     background: $tag-background;
     color: $tag-color;
+    &.flag {
+      @include flagged;
+    }
   }
 }
 
@@ -72,6 +92,9 @@ pre {
   event-attended {
     background: $tag-background;
     color: $tag-color;
+    &.flag {
+      @include flagged;
+    }
   }
 }
 
@@ -79,6 +102,9 @@ pre {
   public-event {
     background: $tag-background;
     color: $tag-color;
+    &.flag {
+      @include flagged;
+    }
   }
 }
 
@@ -86,6 +112,9 @@ pre {
   production {
     background: $tag-background;
     color: $tag-color;
+    &.flag {
+      @include flagged;
+    }
   }
 }
 
@@ -93,6 +122,19 @@ pre {
   reading {
     background: #424242;
     color: white;
+    &.flag {
+      @include flagged;
+    }
+  }
+}
+
+.organization {
+  organization {
+    background: #424242;
+    color: white;
+    &.flag {
+      @include flagged;
+    }
   }
 }
 
@@ -101,13 +143,18 @@ pre {
   color: #666 !important;
 }
 
-.flagged {
-  .flag {
-    background: #D50000 !important;
-    color: white !important;
-  }
+.pell-content {
+  height: 100px;
 }
 
+.uk-text-large {
+  text-transform: capitalize;
+}
+
+.uk-search-default {
+  border: 1px solid #e5e5e5;
+  width: 100%;
+}
 // person,
 // .person {
 //   background: #1E88E5;

@@ -3,12 +3,12 @@ import { action } from '@ember-decorators/object';
 import { camelize } from '@ember/string';
 
 export default class LetterWrapperComponent extends Component {
-  classNameBindings = ['showPerson:person', 'showPlace:place', 'showWriting:writing', 'showEvent:event', 'showTranslating:translating', 'showEventAttended:event-attended', 'showPublicEvent:public-event', 'showProduction:production', 'showReading:reading', 'showFlagged:flagged']
+  classNameBindings = ['showPerson:person', 'showPlace:place', 'showWriting:writing', 'showOrganization:organization', 'showTranslating:translating', 'showEventAttended:event-attended', 'showPublicEvent:public-event', 'showProduction:production', 'showReading:reading', 'showFlagged:flagged']
 
   showPerson = true
   showPlace = true
   showWriting = true
-  showEvent = true
+  showOrganization = true
   showTranslating = true
   showEventAttended = true
   showPublicEvent = true
@@ -30,8 +30,8 @@ export default class LetterWrapperComponent extends Component {
       show: this.showWriting
     },
     {
-      label: 'Event',
-      show: this.showEvent
+      label: 'Public Event',
+      show: this.showPublicEvent
     },
     {
       label: 'Translating',
@@ -42,8 +42,8 @@ export default class LetterWrapperComponent extends Component {
       show: this.showEventAttended
     },
     {
-      label: 'Public Event',
-      show: this.showPublicEvent
+      label: 'Organization',
+      show: this.showOrganization
     },
     {
       label: 'Production',
@@ -58,7 +58,7 @@ export default class LetterWrapperComponent extends Component {
   @action
   toggleTag(entityType) {
     if (typeof entityType === 'string') {
-      this.set(camelize(`show${entityType}`), this.camelize(`show${entityType}`));
+      this.set(camelize(`show${entityType}`), camelize(`show${entityType}`));
     } else {
       this.set(camelize(`show${entityType.label}`), entityType.show);
     }

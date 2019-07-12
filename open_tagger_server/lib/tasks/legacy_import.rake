@@ -41,31 +41,31 @@ namespace :legacy_import do
     puts 'DONE!!!!'
   end
 
-  task :letters, [:dump] => :environment do |t, args|
-    require 'date'
-    options = Rack::Utils.parse_nested_query(args[:dump])
-    file = File.read(options['dump'])
-    d = JSON.parse(file)
+  # task :letters, [:dump] => :environment do |t, args|
+  #   require 'date'
+  #   options = Rack::Utils.parse_nested_query(args[:dump])
+  #   file = File.read(options['dump'])
+  #   d = JSON.parse(file)
 
-    p 'Creating Letters'
-    count = 0
-    d.select { |d1| d1['model'] == 'letters.letter' }.each do |letter|
-      # next unless Person.find_by(legacy_pk: person['pk']).nil?
-      l = Letter.new
-      unknown = Entity.search_by_label('unknown').by_type('Person').first
-      sender = Entity.find_by('lower(label) = ?', letter['fields']['sender'].downcase)
-      recipient = Entity.find_by('lower(label) = ?', letter['fields']['addressed_to_actual'].downcase)
-      l.sender = sender.nil? ? sender : unknown
-      if recipient.nil?
-        l.recipients << unknown
-      else
-        l.recipients << recipient
-      end
-      l.date_sent = Date.new("19#{letter['fields']['year']}".to_i, letter['fields']['month'], letter['fields']['day'])
-      l.save
-    end
-    puts 'DONE!!!!'
-  end
+  #   p 'Creating Letters'
+  #   count = 0
+  #   d.select { |d1| d1['model'] == 'letters.letter' }.each do |letter|
+  #     # next unless Person.find_by(legacy_pk: person['pk']).nil?
+  #     l = Letter.new
+  #     unknown = Entity.search_by_label('unknown').by_type('Person').first
+  #     sender = Entity.find_by('lower(label) = ?', letter['fields']['sender'].downcase)
+  #     recipient = Entity.find_by('lower(label) = ?', letter['fields']['addressed_to_actual'].downcase)
+  #     l.sender = sender.nil? ? sender : unknown
+  #     # ecipiennil
+  #       l.recipients << unknown
+  #     else
+  #       l.recipients << recipient
+  #     end
+  #     l.date = Date.new("19#{letter['fields']['year']}".to_i, letter['fields']['month'], letter['fields']['day'])
+  #     l.save
+  #   end
+  #   puts 'DONE!!!!'
+  # end
 
   task :places, [:dump] => :environment do |t, args|
     options = Rack::Utils.parse_nested_query(args[:dump])
@@ -131,7 +131,7 @@ namespace :legacy_import do
     d.select { |d1| d1['model'] == 'letters.letter' }.each do |l|
       next if l['fields']['addressed_to_actual'].nil?
       text = l['fields']['addressed_to_actual']
-      text = text.split(',').first if text.include? ','
+      text.split(',').first if texinclude? ','
       next unless Literal.find_by(text: l['fields']['addressed_to_actual']).nil?
       peps = Person.search_by_name(text)
       p = peps.empty? ? nil : peps.first
@@ -173,144 +173,140 @@ namespace :legacy_import do
 
     p 'Creating Literal Names'
     count = 0
-    d.select { |d1| d1['model'] == 'letters.letter' }.each do |l|
-      next if l['fields']['addressed_to_actual'].nil?
-      text = l['fields']['addressed_to_actual']
-      text = text.split(',').first if text.include? ','
-      lit = Literal.find_or_create_by(text: text)
-      next if lit.person.present?
-      peps = Person.search_by_name(text)
-      p = peps.empty? ? nil : peps.first
-      lit.person = p
-      count += 1
-      puts lit.text
-      puts "-- #{lit.person.label}" if lit.person.present?
-      lit.save
-    end
-    puts 'DONE!!!!'
+    # d.select { |d1| d1['model'] == 'letters.letter' }.each do |l|
+    #   next if l['fields']['addressed_to_actual'].nil?
+    #   text = l['fields']['addressed_to_actual']
+    #    texsplit(',').first if texinclude? ','
+    #   lit = Literal.find_or_create_by(text: text)
+    #   fliperson.present?
+    #   peps = Person.search_by_name(text)
+    #   p = peps.empty? ? nil : peps.first
+    #    p      count += 1
+    #   itext      --#{liperson.label}" if liperson.present?
+    #      end    puts 'DONE!!!!'
   end
 
-  # wd.instance_of.first.title
+  # dinstance_of.firstitle
 
-  task :create_countries => :environment do
-    # require 'sparql'
-    sparql = SPARQL::Client.new('http://dbpedia.org/sparql')
+  # task :create_countries => :environment do
+  #   # require 'sparql'
+  #    SPARQL:Cliennew('http://dbpedia.org/sparql')
 
-    offset = 0
+  #   offset = 0
 
-    query = %(
-      PREFIX dbo: <http://dbpedia.org/ontology/>
-      PREFIX owl: <http://www.w3.org/2002/07/owl#>
-      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-      SELECT DISTINCT ?s, ?name, ?same
-      WHERE  {
-        ?s a dbo:Country .
-        ?s foaf:name ?name .
-        ?s owl:sameAs ?same .
-        ?s a ?type .
-        FILTER regex(str(?same), "wikidata.org")
-      }
-      ORDER BY ?name
-      OFFSET #{offset}
-    )
+  #   query = %(
+  #     PREFIX dbo: <http://dbpedia.org/ontology/>
+  #     PREFIX owl: <http://www.w3.org/2002/07/owl#>
+  #     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+  #     SELECT DISTINCT ?s, ?name, ?same
+  #     WHERE  {
+  #       ?s a dbo:Country .
+  #       ?s foaf:name ?name .
+  #       ?s owl:sameAs ?same .
+  #       ?s a ?type .
+  #       FILTER regex(str(?same), "wikidata.org")
+  #     }
+  #     ORDER BY ?name
+  #     OFFSET #{offset}
+  #   )
 
-    results = sparql.query(query)
-    results.each do |c|
-      puts "From dbpedia: #{c[:name]}"
-      next unless Place.find_by(wikidata_id: c[:same].value.split('/').last).nil?
-      country = Place.new(wikidata_id: c[:same].value.split('/').last)
-      next unless country.valid?
-      country.save
-      puts country.title_en
-    end
-    p 'DONE!!!!'
-  end
+  #   results = sparql.query(query)
+  #   results.each do |c|
+  #     puts "From dbpedia: #{c[:name]}"
+  #     next unless Place.find_by(wikidata_id: c[:same].value.split('/').last).nil?
+  #     country = Place.new(wikidata_id: c[:same].value.split('/').last)
+  #     next unless country.valid?
+  #     country.save
+  #     puts country.title_en
+  #   end
+  #   p 'DONE!!!!'
+  # end
  
-  task :create_cities => :environment do
-    offset = 0
-    results = []
-    def query(offset)
-      sparql = SPARQL::Client.new('http://dbpedia.org/sparql')
-      query = %(
-        PREFIX dbo: <http://dbpedia.org/ontology/>
-        PREFIX owl: <http://www.w3.org/2002/07/owl#>
-        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-        SELECT DISTINCT ?s, ?name, ?same
-        WHERE  {
-          ?s a dbo:City .
-          ?s foaf:name ?name .
-          ?s owl:sameAs ?same .
-          ?s a ?type .
-          FILTER regex(str(?same), "wikidata.org")
-        }
-        ORDER BY ?name
-        OFFSET #{offset}
-      )
-      sparql.query(query)
-    end
+  # task :create_cities => :environment do
+  #   offset = 0
+  #   results = []
+  #   def query(offset)
+  #      SPARQL:Cliennew('http://dbpedia.org/sparql')
+  #     query = %(
+  #       PREFIX dbo: <http://dbpedia.org/ontology/>
+  #       PREFIX owl: <http://www.w3.org/2002/07/owl#>
+  #       PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+  #       SELECT DISTINCT ?s, ?name, ?same
+  #       WHERE  {
+  #         ?s a dbo:City .
+  #         ?s foaf:name ?name .
+  #         ?s owl:sameAs ?same .
+  #         ?s a ?type .
+  #         FILTER regex(str(?same), "wikidata.org")
+  #       }
+  #       ORDER BY ?name
+  #       OFFSET #{offset}
+  #     )
+  #     sparql.query(query)
+  #   end
 
-    until results.length > 0 && offset != results.length do
-      query(results.length).each {|r| results.push(r)}
-      offset += 10000
-      puts offset
-      puts results.length
-    end
+  #   until results.length > 0 && offset != results.length do
+  #     query(results.length).each {|r| results.push(r)}
+  #     offset += 10000
+  #     puts offset
+  #     puts results.length
+  #   end
 
-    results.each do |c|
-      puts "From dbpedia: #{c[:name]}"
-      next unless City.find_by(wikidata_id: c[:same].value.split('/').last).nil?
-      city = City.new(wikidata_id: c[:same].value.split('/').last)
-      next unless city.valid?
-      city.save
-      puts city.title_en
-    end
-    p 'DONE!!!!'
-  end
+  #   results.each do |c|
+  #     puts "From dbpedia: #{c[:name]}"
+  #     next unless City.find_by(wikidata_id: c[:same].value.split('/').last).nil?
+  #     city = City.new(wikidata_id: c[:same].value.split('/').last)
+  #     next unless city.valid?
+  #     city.save
+  #     puts city.title_en
+  #   end
+  #   p 'DONE!!!!'
+  # end
 
-  task :create_cities_backwards => :environment do
-    offset = 0
-    results = []
-    def query(offset)
-      sparql = SPARQL::Client.new('http://dbpedia.org/sparql')
-      query = %(
-        PREFIX dbo: <http://dbpedia.org/ontology/>
-        PREFIX owl: <http://www.w3.org/2002/07/owl#>
-        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-        SELECT DISTINCT ?s, ?name, ?same
-        WHERE  {
-          ?s a dbo:City .
-          ?s foaf:name ?name .
-          ?s owl:sameAs ?same .
-          ?s a ?type .
-          FILTER regex(str(?same), "wikidata.org")
-        }
-        ORDER BY ?name
-        OFFSET #{offset}
-      )
-      sparql.query(query)
-    end
+  # task :create_cities_backwards => :environment do
+  #   offset = 0
+  #   results = []
+  #   def query(offset)
+  #      SPARQL:Cliennew('http://dbpedia.org/sparql')
+  #     query = %(
+  #       PREFIX dbo: <http://dbpedia.org/ontology/>
+  #       PREFIX owl: <http://www.w3.org/2002/07/owl#>
+  #       PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+  #       SELECT DISTINCT ?s, ?name, ?same
+  #       WHERE  {
+  #         ?s a dbo:City .
+  #         ?s foaf:name ?name .
+  #         ?s owl:sameAs ?same .
+  #         ?s a ?type .
+  #         FILTER regex(str(?same), "wikidata.org")
+  #       }
+  #       ORDER BY ?name
+  #       OFFSET #{offset}
+  #     )
+  #     sparql.query(query)
+  #   end
 
-    until results.length > 0 && offset != results.length do
-      query(results.length).each {|r| results.push(r)}
-      offset += 10000
-    end
+  #   until results.length > 0 && offset != results.length do
+  #     query(results.length).each {|r| results.push(r)}
+  #     offset += 10000
+  #   end
 
-    results.reverse.each do |c|
-      puts "From dbpedia: #{c[:name]}"
-      next unless City.find_by(wikidata_id: c[:same].value.split('/').last).nil?
-      city = City.new(wikidata_id: c[:same].value.split('/').last)
-      next unless city.valid?
-      city.save
-      puts city.title_en
-    end
-    p 'DONE!!!!'
-  end
+  #   results.reverse.each do |c|
+  #     puts "From dbpedia: #{c[:name]}"
+  #     next unless City.find_by(wikidata_id: c[:same].value.split('/').last).nil?
+  #     city = City.new(wikidata_id: c[:same].value.split('/').last)
+  #     next unless city.valid?
+  #     city.save
+  #     puts city.title_en
+  #   end
+  #   p 'DONE!!!!'
+  # end
 
   # task :create_admin_areas => :environment do
   #   offset = 0
   #   results = []
   #   def query(offset)
-  #     sparql = SPARQL::Client.new('http://dbpedia.org/sparql')
+  #   sparql= SPARQL::Cliennew('http://dbpedia.org/sparql')
   #     query = %(
   #       PREFIX dbo: <http://dbpedia.org/ontology/>
   #       PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -347,7 +343,7 @@ namespace :legacy_import do
   #   p 'DONE!!!!'
   # end
 
-  task :create_admin_areas => :environment do
+  # task :create_admin_areas => :environment do
     # countries = Country.all
 
     # countries.each do |country|
@@ -369,19 +365,19 @@ namespace :legacy_import do
     #     aa.save
     #   end
     # end
-    AdminArea.all.reverse.each {|aa| aa.save}
-  end
+  #   AdminArea.all.reverse.each {|aa| aa.save}
+  # end
 
   task :import_letters, [:dump] => :environment do |t, args|
     options = Rack::Utils.parse_nested_query(args[:dump])
     file = File.read(options['dump'])
-    d = JSON.parse(file)
+    # d = JSON.parse(file)
 
     p 'Creating Letters'
     count = 0
     d.select { |d1| d1['model'] == 'letters.letter' }.each do |letter|
       next unless Letter.find_by(legacy_pk: letter['pk']).nil?
-      l = Letter.new(legacy_pk: letter['pk'], letter_code: letter['fields']['letter_code'])
+      l = Letter.new(legacy_pk: letter['pk'], code: letter['fields']['code'])
       sender = letter['fields']['sender'].split(' ')
       l.sender = Person.find_or_create_by(first: sender.first, last: sender.last)
 
@@ -421,6 +417,110 @@ namespace :legacy_import do
         label: letter['fields']['collection'],
         repository: Repository.find_by(label: letter['fields']['repository'])
       ) if letter['fields']['collection'].present?
+    end
+  end
+
+  task :letters_from_csv, [:csv] => :environment do |t, args|
+    require 'csv'
+    options = Rack::Utils.parse_nested_query(args[:csv])
+    p options['csv']
+    rows = CSV.read(options['csv'], headers: true)
+    rows.each do |row|
+      p row['ID']
+      if row['Day'] == '0'
+        row['Day'] = '1'
+      end
+      if row['Month'] == '0'
+        row['Month'] = '1'
+      end
+      p "19#{row['Year']} #{row['Month']} #{row['Day']}"
+
+
+      letter = Letter.new(
+        code: row['Code'],
+        date: DateTime.new("19#{row['Year']}".to_i, row['Month'].to_i, row['Day'].to_i),
+        legacy_pk: row['ID'],
+        addressed_to: row['Addressed to (Actual)'],
+        addressed_from: row['Addressed from (Actual)'],
+        # sender: row['Sender'],
+        physical_desc: row['PhysDes'],
+        physical_detail: row['phys descr detail'],
+        physical_notes: row['PhysDes notes'],
+        repository_info: row['Repository information'],
+        postcard_image: row['Postcard Image'],
+        leaves: row['leves'],
+        sides: row['sides'],
+        postmark: row['Postmark (Actual)'],
+        notes: row['Additional'],
+        letter_owner: LetterOwner.find_or_create_by(label: row['OwnerRights']),
+        file_folder: FileFolder.find_or_create_by(label: row['File']),
+        typed: row['Autograph or Typed'] == 'T' ? true : false,
+        signed: row['initialed or signed'] == 'S' ? true : false,
+        envelope: row['Envelope'] == 'E' ? true : false,
+        verified: row['Verified'] == 'Y' ? true : false
+      )
+
+      from = Entity.find_or_create_by(
+        label: "#{row['Reg. Place written']} #{row['Reg. Place written city']} #{row['Reg. Place written country']}",
+        entity_type: EntityType.find_or_create_by(label: 'place')
+      )
+
+      letter.places_written << from
+
+      if row['Reg. Place written, second city']
+        second_city = Entity.find_or_create_by(
+          label: row['Reg. Place written, second city'],
+          entity_type: EntityType.find_or_create_by(label: 'place')
+        )
+        letter.places_written << second_city
+      end
+
+      letter.recipient = Entity.find_or_create_by(
+        label: row['Reg. recipient'],
+        entity_type: EntityType.find_or_create_by(label: 'person')
+      )
+
+      letter.destination = Entity.find_or_create_by(
+        label: "#{row['Reg place sent']} #{row['Reg. PlaceSent City']} #{row['Reg. PlaceSent Country']}",
+        entity_type: EntityType.find_or_create_by(label: 'place')
+      )
+
+      if row['First Repository']
+        repo = Repository.find_or_create_by(label: row['First Repository'])
+        repo.format = row['First Format']
+        repo.american = row['Euro or Am?'] == 'American' ? true : false
+        repo.public = row['First Public?'] == 'public' ? true : false
+        if row['First Collection']
+          repo.collections << Collection.find_or_create_by(label: row['First Collection'])
+        end
+        repo.save
+        letter.repositories << repo
+      end
+
+      if row['Second Repository']
+        repo = Repository.find_or_create_by(label: row['Second Repository'])
+        repo.format = row['Second Format']
+        repo.public = row['Second Public?'] == 'Public' ? true : false
+        if row['Second Collection']
+          repo.collections << Collection.find_or_create_by(label: row['Second Collection'])
+        end
+        repo.save
+        letter.repositories << repo
+      end
+
+      if row['PlacePrevPubl']
+        letter.letter_publisher = LetterPublisher.find_or_create_by(label: row['PlacePrevPubl'])
+      end
+
+      letter.typed = row['Autograph or Typed'] == 'T' ? true : false
+
+      letter.signed = row['initialed or signed'] == 'S' ? true : false
+
+      letter.envelope = row['Envelope'] == 'E' ? true : false
+
+      letter.verified = row['Verified'] == 'Y' ? true : false
+
+      letter.save
     end
   end
 end

@@ -2,172 +2,124 @@
 <div class="uk-child-width-1-2" uk-grid>
   {{#if model.letter.content}}
     <section class="">
+      {{!-- If text selected --}}
       {{#if queryText}}
         <form class="uk-form-stacked">
-          <legend class='uk-legend uk-margin'>Tag Entity</legend>
-          <section>
-            Selected Text:
-            <strong>
-              {{queryText}}
-            </strong>
-          </section>
-          {{#unless literalToEdit}}
+          {{#if (not this.tagToEdit)}}
+            <legend class="uk-legend uk-margin">Tag Entity</legend>
+            <section>
+              Selected Text:
+              <strong>
+                {{this.queryText}}
+              </strong>
+            </section>
             <section class="uk-margin-small">
               <UkButton @on-click={{action "reset"}} @color="primary">
                 Deselect
               </UkButton>
             </section>
-          {{/unless}}
-          {{#if newEntity}}
+            {{!-- Select Type --}}
+            {{!-- {{#if model.entityTypes}} --}}
+
+            <section class="uk-margin">
+              <label class="uk-form-label uk-text-large" for="select-type">
+                Type
+              </label>
+              <section class="uk-form-controls">
+                <select id="select-type" class="uk-select" onchange={{action "setType"}}>
+                  <option value="" selected>
+                    Select Type
+                  </option>
+                  {{#each model.entityTypes as |type|}}
+                    <option value={{type.id}} selected={{or
+                      (eq entityType type.label)
+                      (eq selectedType.label type.label)
+                      }}>
+                      {{type.label}}
+                    </option>
+                  {{/each}}
+                </select>
+              </section>
+            </section>
+          {{/if}}
+          {{!-- If entity selected --}}
+
+          {{!--  Type Selected  --}}
+          {{#if (and (and (and this.selectedType (not this.entitySelected)) (not this.newEntity)) (not this.tagToEdit))}}
+
+            <section class="uk-margin">
+              <label class="uk-form-label uk-text-large" for="entity-search">
+                Search
+              </label>
+              <section class="uk-form-controls" uk-grid>
+                <section class="uk-width-2-3">
+                  <form class="uk-search uk-search-default">
+                    <span uk-search-icon></span>
+                    <input class="uk-search-input" id="entity-search" type="search">
+                  </form>
+                </section>
+                <section class="uk-width-1-3">
+                  <UkButton @color="primary">
+                    Search
+                  </UkButton>
+                </section>
+              </section>
+            </section>
+
+
+            {{!-- {{#if (is-empty entityToEdit.id)}} --}}
+            <section>
+              <UkButton @on-click={{perform flagEntity}} @color="primary">
+                Not Sure
+              </UkButton>
+              <UkButton @on-click={{perform suggestNewEntity}} @color="secondary">
+                Suggest New
+                {{selectedType.label}}
+              </UkButton>
+            </section>
+            <section class="uk-margin">
+              <SearchResults @matches={{this.matches}} @results={{this.results}}
+                @addExistingLiteral={{this.addExistingLiteral}} @addLiteral={{this.addLiteral}}></SearchResults>
+            </section>
+          {{else if this.tagToEdit}}
+            <section class="uk-form-controls">
+              <UkButton @color="secondary" @on-click={{action "removeTag"}}>
+                Remove Tag
+              </UkButton>
+              <UkButton @color="link" @on-click={{action "reset"}}>
+                Cancel
+              </UkButton>
+            </section>
+          {{else if newEntity}}
             {{pell-editor
               class="pell"
               value=newEntity.suggestion
+              pellOptions=editorOptions
               onChange=(action (mut newEntity.suggestion))
             }}
             <UkButton @color="primary" @on-click={{perform saveSuggestion}}>
               Save
             </UkButton>
           {{else}}
-            <section class="uk-margin">
-              {{#if model.entityTypes}}
-                <label class="uk-form-label" for="select-type">
-                  Type
-                </label>
-                <section class="uk-form-controls">
-                  <select
-                    id="select-type"
-                    class="uk-select"
-                    onchange={{action "setType"}}
-                  >
-                    <option value="" selected>
-                      Select Type
-                    </option>
-                    {{#each model.entityTypes as |type|}}
-                      <option
-                        value={{type.id}}
-                        selected={{or
-                          (eq entityType type.label)
-                          (eq selectedType.label type.label)
-                        }}
-                      >
-                        {{type.label}}
-                      </option>
-                    {{/each}}
-                  </select>
-                </section>
-              {{/if}}
-            </section>
-            {{#if literalToEdit}}
-              <section class="uk-margin">
-                <label class="uk-form-label">
-                  Entity Label
-                </label>
-                <section class="uk-form-controls">
-                  {{pell-editor
-                    class="pell"
-                    value=tagToEdit.label
-                    onChange=(action (mut tagToEdit.label))
-                  }}
-                  <UkButton @color="primary" @on-click={{perform updateEntity}}>
-                    Save
-                  </UkButton>
-                  <UkButton @color="primary" @on-click={{action 'removeTag'}}>
-                    Remove Tag
-                  </UkButton>
-                </section>
-              </section>
-            {{/if}}
-            {{#if selectedType}}
-              <section>
-                {{#if matches}}
-                  <h3>
-                    Matches
-                  </h3>
-                  <dl class="uk-description-list uk-description-list-divider">
-                    {{#each matches as |match|}}
-                      <dt
-                        role="button"
-                        onclick={{action "addExistingLiteral" match}}
-                      >
-                        {{{match.entity.label}}}
-                      </dt>
-                      <dd
-                        role="button"
-                        onclick={{action "addExistingLiteral" match}}
-                      >
-                        {{#if match.entity.notes}}
-                          {{{match.notes}}}
-                        {{else}}
-                          "No description"
-                        {{/if}}
-                      </dd>
-                    {{/each}}
-                  </dl>
-                {{/if}}
-                {{#if results}}
-                  <h3>
-                    Suggestions from Database
-                  </h3>
-                  <dl class="uk-description-list uk-description-list-divider">
-                    {{#each results as |result|}}
-                      <dt role="button" onclick={{perform addLiteral result}}>
-                        {{result.label}}
-                      </dt>
-                      <dd role="button" onclick={{perform addLiteral result}}>
-                        {{if result.notes result.notes "No description"}}
-                      </dd>
-                    {{/each}}
-                  </dl>
-                {{else}}
-                  <i>
-                    No suggestions found
-                  </i>
-                {{/if}}
-              </section>
-              <section>
-                <UkButton @on-click={{perform flagEntity}} @color="primary">
-                  Not Sure
-                </UkButton>
-                <UkButton
-                  @on-click={{perform suggestNewEntity}}
-                  @color="secondary"
-                >
-                  Suggest New
-                  {{selectedType.label}}
-                </UkButton>
-              </section>
-            {{/if}}
           {{/if}}
         </form>
       {{else}}
-        <h1
-          class="uk-heading-hero uk-text-muted uk-text-uppercase uk-text-center"
-        >
+        <h1 class="uk-heading-hero uk-text-muted uk-text-uppercase uk-text-center">
           Select text to tag
         </h1>
       {{/if}}
     </section>
     <LetterWrapper>
-      <div
-        class="uk-panel uk-panel-scrollable letter-container
-          {{if queryText "no-select"}}"
-      >
-        <LettersView
-          @letter={{model.letter}}
-          @select={{action "setSelected"}}
-          @showContextMenu={{perform showContextMenu}}
-          @editTag={{perform editTag}}
-        >
+      <div class="uk-panel uk-panel-scrollable letter-container
+          {{if queryText "no-select"}}">
+        <LettersView @letter={{model.letter}} @select={{action "setSelected"}}
+          @showContextMenu={{perform showContextMenu}} @editTag={{perform editTag}}>
         </LettersView>
       </div>
     </LetterWrapper>
   {{else}}
     <div class="uk-width-1-1">
-      <LetterInput
-        @setLetter={{action "setLetter"}}
-        @letterContent={{letterContent}}
-        class="letter-container"
-       />
+      <LetterInput @setLetter={{action "setLetter"}} @letterContent={{letterContent}} class="letter-container" />
 
     </div>
   {{/if}}

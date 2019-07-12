@@ -8,8 +8,10 @@ const {
 
 export default Model.extend({
   label: attr('string'),
+  description: attr('string'),
   literals: hasMany('literal'),
   entityType: belongsTo('entity-type'),
   suggestion: attr('string'),
-  letters: hasMany('letter')
+  letters: hasMany('letter'),
+  properties: attr()
 });

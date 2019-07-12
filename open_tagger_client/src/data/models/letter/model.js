@@ -9,10 +9,10 @@ const {
 } = DS;
 
 export default Model.extend({
-  letter_code: attr('string'),
+  code: attr('string'),
   content: attr('string'),
   recipients: hasMany('people'),
-  'date_sent': attr('date'),
+  date: attr('date'),
   month: attr('number'),
   year: attr('number'),
   'sent_from_actual': belongsTo('literal'),
@@ -28,10 +28,10 @@ export default Model.extend({
   sides: attr('number'),
   'recipient_list': attr('string'),
   'legacy_pk': attr('number'),
-  entities: hasMany('entity'),
+  literals: hasMany('literal'),
 
-  dateSent: computed('date_sent', function() {
-    const date = new Date(this.get('date_sent'));
+  dateSent: computed('date', function() {
+    const date = new Date(this.get('date'));
     return `${date.getDate()} ${date.toLocaleString('en-us', { month: 'long' })} ${date.getFullYear()}`;
   })
 });

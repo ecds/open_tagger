@@ -2,13 +2,14 @@
 
 # app/controllers/letters_controller.rb
 class LettersController < ApplicationController
+  include Pagy::Backend
   # authorize_resource
 
   # GET /letters
   def index
     # @letters = Letter.all
     if params[:query].nil?
-      render json: Letter.all
+      paginate Letter.all.order(date: :asc), per_page: 25
     elsif params[:query].present?
       render json: Letter.search_by_name(params[:query])
     end
@@ -29,8 +30,7 @@ class LettersController < ApplicationController
   def create
     @letter = Letter.find_or_create_by(letter_params)
     if @letter.save
-      response = render json: @letter, status: :created, location: "/letters/#{@letter.id}"
-      return response
+      render json: @letter, status: :created, location: "/letters/#{@letter.id}"
     else
       render json: @letter.errors, status: :unprocessable_entity
     end
@@ -71,8 +71,7 @@ class LettersController < ApplicationController
                 :last,
                 :wikidata_id,
                 :literals,
-                :content,
-                :entities
+                :content
               ]
         )
       end

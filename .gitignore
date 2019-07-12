@@ -52,7 +52,7 @@ yarn-error.log
 master.key
 credentials.yml.enc
 database.yml
-
+*letters/
 
 # ember-try
 .node_modules.ember-try/

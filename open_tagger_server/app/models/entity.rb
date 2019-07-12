@@ -2,18 +2,19 @@ class Entity < ApplicationRecord
   include PgSearch
 
   belongs_to :entity_type
-  # has_one :person
-  # has_one :place
   has_many :literals
-  has_many :letter_entities
-  has_many :letters, through: :letter_entities
-
-  # before_save :_get_formal_name
+  # has_many :letter_entities
+  # has_many :letters, through: :letter_entities
+  has_many :links
 
   scope :by_type, lambda { |type|
     joins(:entity_type)
     .where('entity_types.label = ?', type)
   }
+
+  def by_type(type)
+    where(entity_type: EntityType.find_by(lable: type))
+  end
 
   pg_search_scope :search_by_label,
                   against: :label,
@@ -29,10 +30,22 @@ class Entity < ApplicationRecord
     entity_type.entity_properties
   end
 
-  private
+  def letters
+    literals.collect(&:letters).flatten
+  end
 
-    def _get_formal_name
-      return if !self.person
-      self.label = self.person.formal_name
-    end
+  # private
+
+Entity.all.each do |e|
+  next if e.properties.nil?
+  if e.properties['profile']
+    e.description = e.properties['profile']
+    e.properties.delete('profile')
+  elsif e.properties['description']
+    e.description = e.properties['description']
+    e.properties.delete('description')
+  end
+  e.save
+end
+
 end

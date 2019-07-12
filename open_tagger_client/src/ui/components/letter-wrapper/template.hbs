@@ -5,9 +5,9 @@
   {{entityType.label}}
   </label>
   {{/each}}
-  <label>
+  {{!-- <label>
   {{input type='checkbox' class='uk-checkbox' name='flagged' checked=showFlagged change=(pipe (toggle 'showFlagged' this) (action 'toggleTag' 'flagged'))}}
   Flagged
-  </label>
+  </label> --}}
 </div>
 {{yield}}
