@@ -1,24 +1,13 @@
-# README
+# OpenTagger API Server
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Endpoints
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+|  |  |
+| ------------ | --------------- |
+| Entity Types | `/entity-types` |
+| Entities by Type | `/entities?type=<entity_type>` |
+| Specific Entity | `/entities/<id>` |
+| Search Entity | `/search-entities?query=<search_terms>&type=<entity_type>` |
+| Letters | `/letters` |
+| Letters by Date Range | `/letters?start=<date>&end=<date>` |
+| Letters by Recipient | `/letters?recipient=<person>` |
