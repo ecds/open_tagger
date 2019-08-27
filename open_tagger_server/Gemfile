@@ -68,12 +68,16 @@ gem 'json-ld'
 gem 'pagy'
 gem 'pager_api'
 
+# gem 'open-uri'
+gem 'nokogiri'
+
 # For normalizing addresses
 gem 'nominatim'
 gem 'ruby_postal'
 gem 'geocoder'
 
 # For normalizing names
+gem 'httparty'
 gem 'dbpedia'
 gem 'sparql'
 gem 'sparql-client'

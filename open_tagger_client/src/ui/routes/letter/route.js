@@ -1,5 +1,6 @@
 import Route from '@ember/routing/route';
 import RSVP from 'rsvp';
+import { action } from '@ember-decorators/object';
 
 export default class LettersLetterRoute extends Route {
   afterModel() {
@@ -19,5 +20,10 @@ export default class LettersLetterRoute extends Route {
     this._super(controller, model);
     this.controllerFor('letter').set('store', this.store);
     this.controllerFor('letter').set('model', model);
+  }
+
+  @action
+  didTransition() {
+    this.controllerFor('letter').clear();
   }
 }

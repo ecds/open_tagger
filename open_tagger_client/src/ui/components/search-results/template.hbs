@@ -11,10 +11,10 @@
         </a>
         <dl class="uk-description-list uk-description-list-divider uk-accordion-content">
           {{#each @matches as |match|}}
-            <dt role="button" onclick={{action @addExistingLiteral match}}>
+            <dt role="button" onclick={{perform @addExistingLiteral match}}>
               {{{match.entity.label}}}
             </dt>
-            <dd role="button" onclick={{action @addExistingLiteral match}}>
+            <dd role="button" onclick={{perform @addExistingLiteral match}}>
               {{#if match.entity.description}}
                 {{{match.entity.description}}}
               {{else}}

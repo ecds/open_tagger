@@ -1,19 +1,27 @@
 class EntitiesController < ApplicationController
-  before_action :set_entity, only: [:show, :edit, :update, :destroy]
+  before_action :set_entity, only: [:show] #, :edit, :update, :destroy]
 
   # GET /entities
   def index
+    entities = Entity.where(nil)
     if params.empty?
-      render json: Entity.all
+      entities = Entity.all
     elsif params[:query].present? && params[:type].present?
       if params[:query] == 'unknown'
-        render json: [Entity.find_or_create_by(label: params[:query], entity_type: EntityType.find_by(label: params[:type]))]
+        entities = [Entity.find_or_create_by(label: params[:query], entity_type: EntityType.find_by(label: params[:type]))]
       else
-        render json: Entity.search_by_label(params[:query]).by_type(params[:type])
+        entities = Entity.search_by_label(params[:query]).by_type(params[:type])
       end
+    elsif params[:label].present? && params[:entity_type].present?
+      entities = Entity.by_type(params[:entity_type]).get_by_label(params[:label])
     elsif params[:entity_type].present?
-      render json: Entity.by_type(params[:entity_type])
+      entities = Entity.by_type(params[:entity_type])
     end
+    paginate entities, per_page: @items
+  end
+
+  def search
+    paginate Entity.search_by_label(params[:query]).by_type(params[:type]), per_page: @items
   end
 
   # GET /entities/1
@@ -33,7 +41,6 @@ class EntitiesController < ApplicationController
   # POST /entities
   def create
     @entity = Entity.new(entity_params)
-    p "data!!!!!!!!! #{params[:data]}"
     @entity.entity_type = EntityType.find(params[:data][:relationships][:'entity-type'][:data][:id])
 
     if @entity.save!

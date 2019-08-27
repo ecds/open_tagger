@@ -87,7 +87,7 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
     t.string "addressed_to"
     t.string "addressed_from"
     t.string "destination"
-    t.string "recipient"
+    t.uuid "recipient"
     t.boolean "typed"
     t.boolean "signed"
     t.string "physical_desc"
@@ -112,14 +112,6 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
     t.index ["letter_publisher_id"], name: "index_letters_on_letter_publisher_id"
   end
 
-  create_table "links", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.text "link"
-    t.bigint "entity_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["entity_id"], name: "index_links_on_entity_id"
-  end
-
   create_table "literals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "text"
     t.uuid "entity_id"
@@ -131,11 +123,11 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
 
   create_table "mentions", force: :cascade do |t|
     t.uuid "letter_id"
-    t.uuid "literal_id"
+    t.uuid "entity_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["letter_id"], name: "index_mentions_on_letter_id"
-    t.index ["literal_id"], name: "index_mentions_on_literal_id"
+    t.index ["entity_id"], name: "index_mentions_on_entity_id"
   end
 
   create_table "places_written", force: :cascade do |t|

@@ -6,14 +6,14 @@ import { task, timeout, waitForProperty } from 'ember-concurrency';
 export default class LettersLetterController extends Controller {
   results = this.results || A([]);
   wikiResults = this.wikiResults || A([]);
-  queryText = this.queryText || null;
+  selectedText = this.selectedText || null;
+  queryText = this.selectedText || null;
   newLiteral = this.newLiteral || null;
   matches = this.matches || A([]);
-  // selected = this.selected || null;
   selectedType = this.selectedType || null;
   letterContent = this.letterContent || null;
-  modal = this.modal || null;
-  new = this.new || null;
+  // modal = this.modal || null;
+  // new = this.new || null;
   tagToEdit = this.tagToEdit || null;
   literalToEdit = this.literalToEdit || null;
   tagElementToEdit = this.tagElementToEdit || null;
@@ -32,18 +32,27 @@ export default class LettersLetterController extends Controller {
       suggestion: ''
     });
     yield unknownEntity.save();
+    yield waitForProperty(unknownEntity, 'id', v => v != null);
+    if (!this.newLiteral) {
+      let unknownLiteral = yield this.store.createRecord('literal', {
+        text: this.selectedText,
+        entity: unknownEntity
+      });
+      unknownLiteral.save();
+      yield waitForProperty(unknownLiteral, 'id', v => v != null);
+      this.set('newLiteral', unknownLiteral);
+    }
     this.newLiteral.setProperties({
       review: true
     });
     yield this.get('addLiteral').perform(unknownEntity);
-    // this.send('reset');
     this.clear();
   })
 
   addLiteral = task(function * (entity) {
     if (this.newLiteral === null) {
       let newLiteral = yield this.store.createRecord('literal', {
-        text: this.queryText
+        text: this.selectedText
       });
       this.set('newLiteral', newLiteral);
     }
@@ -51,15 +60,15 @@ export default class LettersLetterController extends Controller {
       entity: entity,
       review: true
     });
-    yield this.newLiteral.save();
-    yield waitForProperty(this.newLiteral, 'id', v => v != null);
+    // yield this.newLiteral.save();
+    // yield waitForProperty(this.newLiteral, 'id', v => v != null);
     this.model.letter.get('literals').pushObject(this.newLiteral);
     yield this.get('tagEntity').perform(entity);
   })
 
   suggestNewEntity = task(function * () {
     let newEntity = yield this.store.createRecord('entity', {
-      suggestion: this.queryText,
+      suggestion: this.selectedText,
       entityType: this.selectedType
     });
     this.set('newEntity', newEntity);
@@ -95,12 +104,7 @@ export default class LettersLetterController extends Controller {
     document.getElementsByTagName('pre')[0].innerHTML = content;
   })
 
-  updateEntity = task(function * () {
-    // this.send('removeTag');
-    // yield timeout(300);
-    // this.tagToEdit.setProperties({
-    //   entityType: this.selectedType
-    // });
+  updateTag = task(function * () {
     this.tagToEdit.set('entityType', this.selectedType);
     yield this.tagToEdit.save();
     yield this.get('tagEntity').perform(this.tagToEdit);
@@ -133,9 +137,9 @@ export default class LettersLetterController extends Controller {
   clear() {
     this.set('newLiteral', null);
     this.set('newEntity', null);
+    this.set('selectedText', null);
     this.set('queryText', null);
     this.set('selectedType', null);
-    // this.set('tagElementToEdit', event.target);
     this.set('tagToEdit', null);
     this.set('literalToEdit', null);
     this.send('clearResults');
@@ -152,6 +156,14 @@ export default class LettersLetterController extends Controller {
     yield this.model.letter.save();
     this.clear();
   })
+  
+  addExistingLiteral = task(function * (literal) {
+    this.set('newLiteral', literal);
+    let entity = yield literal.get('entity')
+      // this.get('addLiteral').perform(entity);
+    this.model.letter.get('literals').pushObject(literal);
+    this.get('tagEntity').perform(entity);
+  })
 
   editTag = task(function * (event) {
     document.getSelection().removeAllRanges();
@@ -161,10 +173,7 @@ export default class LettersLetterController extends Controller {
       this.set('tagElementToEdit', event.target);
       this.set('tagToEdit', tagToEdit);
       this.set('literalToEdit', literalToEdit);
-      this.set('queryText', literalToEdit.text);
-      // this.set('selectedType', this.store.peekRecord('entity_type', tagToEdit.entityType.get('id')));
-      // this.send('getLiteral');
-      // this.search();
+      this.set('selectedText', literalToEdit.text);
     } catch(error) {
       console.log(error);
     }
@@ -176,7 +185,8 @@ export default class LettersLetterController extends Controller {
   }
 
   // First we do a text search for possible entities.
-  // If none are found, we get suggestions from WikiData.
+  // If none are found, we get suggestions from WikiData (currently commented out).
+  @action
   search() {
     this.store.query('entity', {
       query: this.queryText,
@@ -214,9 +224,10 @@ export default class LettersLetterController extends Controller {
 
   @action
   setSelected(selection, element) {
-    if (this.queryText) return;
+    if (this.selectedText) return;
     this.clear();
     this.set('tagElementToEdit', element);
+    this.set('selectedText', selection);
     this.set('queryText', selection);
   }
 
@@ -226,11 +237,6 @@ export default class LettersLetterController extends Controller {
       'selectedType',
       this.store.peekRecord('entity_type', event.target.value)
     );
-    // if (this.tagToEdit) {
-    //   this.tagToEdit.setProperties({
-    //     entityType: this.selectedType
-    //   });
-    // }
     this.send('getLiteral');
   }
 
@@ -251,17 +257,10 @@ export default class LettersLetterController extends Controller {
       } else {
         this.set('matches', literals);
       }
-      this.search();
+      this.send('search');
     });
   }
 
-  @action
-  addExistingLiteral(literal) {
-    this.set('newLiteral', literal);
-    literal.get('entity').then((entity) => {
-      this.get('addLiteral').perform(entity);
-    });
-  }
 
   @action
   cancel() {
@@ -280,68 +279,40 @@ export default class LettersLetterController extends Controller {
   }
 
   // @action
-  // tagEntity(entity) {
-  //   let tmpElement = document.querySelector('tmp');
-  //   let newElement = document.createElement(this.selectedType.label.toLocaleLowerCase().dasherize());
-  //   newElement.setAttribute('profile_id', entity.id);
-  //   newElement.innerHTML = tmpElement.innerHTML
-  //   tmpElement.parentNode.replaceChild(newElement, tmpElement);
-  //   // let content = document.getElementsByTagName('pre')[0].innerHTML;
-  //   // console.log(content);
-  //   // this.model.letter.setProperties({
-  //   //   content: '.'
-  //   // });
-  //   // this.model.letter.setProperties({
-  //   //   content
-  //   // });
-  //   this.model.letter.save().then(() => {
-  //     this.send('reset');
-  //   });
+  // associateRepo(repo) {
+  //   let repos = this.newLetter.get('repositories');
+  //   repos.pushObject(repo);
   // }
-  
-  @action
-  updateProperty(key, content) {
-    content = content.replace(/<div>/g, '');
-    content = content.replace(/<\/div>/g, '');
-    this.tagToEdit.properties.set(key, content);
-    console.log(this.tagToEdit.properties[key]);
-  }
 
-  @action
-  associateRepo(repo) {
-    let repos = this.newLetter.get('repositories');
-    repos.pushObject(repo);
-  }
+  // @action
+  // createRepo(label) {
+  //   let newRepo = this.store.createRecord('repository', {
+  //     label
+  //   });
+  //   newRepo.save().then(repo => {
+  //     this.send('associateRepo', repo);
+  //   })
+  // }
 
-  @action
-  createRepo(label) {
-    let newRepo = this.store.createRecord('repository', {
-      label
-    });
-    newRepo.save().then(repo => {
-      this.send('associateRepo', repo);
-    })
-  }
+  // @action
+  // associateCollection(collection) {
+  //   let collections = this.newLetter.get('collections');
+  //   collections.pushObject(collection);
+  // }
 
-  @action
-  associateCollection(collection) {
-    let collections = this.newLetter.get('collections');
-    collections.pushObject(collection);
-  }
-
-  @action
-  createCollection(repo, label) {
-    let newCollection = this.store.createRecord('collection', {
-      label,
-      repository: repo
-    });
-    newCollection.save().then(collection => {
-      let collections = repo.get('collections')
-      collections.pushObject(collection);
-      repo.save();
-      this.send('associateCollection', collection);
-    })
-  }
+  // @action
+  // createCollection(repo, label) {
+  //   let newCollection = this.store.createRecord('collection', {
+  //     label,
+  //     repository: repo
+  //   });
+  //   newCollection.save().then(collection => {
+  //     let collections = repo.get('collections')
+  //     collections.pushObject(collection);
+  //     repo.save();
+  //     this.send('associateCollection', collection);
+  //   })
+  // }
 
   @action
   removeTag() {
@@ -353,17 +324,6 @@ export default class LettersLetterController extends Controller {
       newEl,
       this.tagElementToEdit
     );
-    // this.get('closeContextMenu').perform();
     this.get('unTagEntity').perform();
   }
-
-  closeContextMenu = task(function * () {
-    let editCard = document.getElementById('edit-card');
-    editCard.removeAttribute('style');
-    this.set('tagToEdit', null);
-    this.set('tagElementToEdit', null);
-    document.getSelection().removeAllRanges();
-    yield timeout(300);
-    yield this.get('updateLetter').perform();
-  })
 }

@@ -2,25 +2,34 @@
 
 # app/controllers/letters_controller.rb
 class LettersController < ApplicationController
-  include Pagy::Backend
+  before_action :set_params, only: [:index]
+  # after_action { pagy_headers_merge(@pagy) if @pagy }
   # authorize_resource
 
   # GET /letters
   def index
-    # @letters = Letter.all
-    if params[:query].nil?
-      paginate Letter.all.order(date: :asc), per_page: 25
-    elsif params[:query].present?
-      render json: Letter.search_by_name(params[:query])
+    @letters = Letter.where(nil)
+    @filter_params.each do |key, value|
+      next if value.nil?
+      values = value.split(',')
+      @letters = @letters.public_send(key, values.shift())
+      if values.present?
+        values.each do |value|
+          @letters = @letters.or(Letter.public_send(key, value))
+        end
+      end
     end
-    # render json: @letters, include: []
+    @letters = @letters.between(@start, @end)
+    paginate @letters.order('date ASC'), per_page: @items
   end
 
   # GET /letters/1
   def show
     @letter = Letter.find(params[:id])
-    render json: @letter,
-           include: []
+    if params[:content] == true
+      render json: @letter, serializer: LetterWithContentSerializer
+    end
+    render json: @letter#, include: []
   end
 
   # # POST /letters
@@ -74,5 +83,11 @@ class LettersController < ApplicationController
                 :content
               ]
         )
+      end
+
+      def set_params
+        @start = params[:start].present? ? Date.parse(params[:start]) : Letter.minimum('date')
+        @end = params[:end].present? ? Date.parse(params[:end]) : Letter.maximum('date')
+        @filter_params = params.slice(:recipients, :repositories)
       end
 end

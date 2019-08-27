@@ -8,12 +8,12 @@ class Letter < ApplicationRecord
   has_many :repositories, through: :letter_repositories
 
   has_many :mentions
-  has_many :literals, through: :mentions
+  has_many :entities, through: :mentions
 
   has_many :letter_place_written
   has_many :places_written, through: :letter_place_written, source: :entity
 
-  # belongs_to :recipient, class_name: 'Entity', foreign_key: :recipient
+  belongs_to :recipient, class_name: 'Entity', foreign_key: :recipient
   # belongs_to :destination, class_name: 'Entity', foreign_key: :destination
 
   belongs_to :letter_owner, optional: true
@@ -36,9 +36,23 @@ class Letter < ApplicationRecord
 
   # before_validation :set_code
 
+  scope :between, lambda { |start, _end|
+    where('date BETWEEN ? AND ?', start, _end)
+  }
+
+  scope :recipients, lambda { |recipent|
+    joins(:recipient)
+    .where('entities.label = ?', recipent)
+  }
+
+  scope :repositories, lambda { |repository|
+    joins(:repositories)
+    .where('repositories.label = ?', repository)
+  }
+
   def recipient_list
-    # if recipients.present?
-      # ActionView::Base.full_sanitizer.sanitize(recipients.collect(&:label).join(', '))
+    # if self.recipients.present?
+    #   ActionView::Base.full_sanitizer.sanitize(recipients.collect(&:label).join(', '))
     # end
   end
 

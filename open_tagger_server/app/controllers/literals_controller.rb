@@ -15,8 +15,16 @@ class LiteralsController < ApplicationController
       if @existing.present?
         render json: @existing, include: [:entity]
       else
-        Literal.create(text: params[:text])
-        render json: Literal.where(text: params[:text]).where(entity: nil)
+        new_literal = Literal.create(
+          text: params[:text],
+          entity_type: EntityType.find_by(
+            label: params[:type],
+            review: true
+          )
+        )
+        if new_literal.save
+          render json: new_literal #Literal.where(text: params[:text]).where(entity: nil)
+        end
       end
     end
   end
@@ -27,20 +35,21 @@ class LiteralsController < ApplicationController
   end
 
   # GET /literals/new
-  def new
-    @literal = Literal.new
-  end
+  # def new
+  #   @literal = Literal.new
+
+  # end
 
   # GET /literals/1/edit
-  def edit
-  end
+  # def update
+  # end
 
   # POST /literals
   def create
     @literal = Literal.new(literal_params)
 
     if @literal.save
-      redirect_to @literal, notice: 'Literal was successfully created.'
+      render json: @literal, location: "/literals/#{@literal.id}"
     else
       render :new
     end

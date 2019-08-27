@@ -1,16 +1,52 @@
 {{outlet}}
+{{#if this.addLiteral.isRunning}}
+  <div class="task-running">
+    <div class="uk-position-center uk-text-large">
+      Adding Tag from Match
+    </div>
+  </div>
+{{/if}}
+{{#if this.saveSuggestion.isRunning}}
+  <div class="task-running">
+    <div class="uk-position-center uk-text-large">
+      Saving Suggestion
+    </div>
+  </div>
+{{/if}}
+{{#if this.updateLetter.isRunning}}
+  <div class="task-running">
+    <div class="uk-position-center uk-text-large">
+      Updating Letter
+    </div>
+  </div>
+{{/if}}
+{{#if this.flagEntity.isRunning}}
+  <div class="task-running">
+    <div class="uk-position-center uk-text-large">
+      Flagging Text
+    </div>
+  </div>
+{{/if}}
+{{#if this.unTagEntity.isRunning}}
+  <div class="task-running">
+    <div class="uk-position-center uk-text-large">
+      Clearing Selection
+    </div>
+  </div>
+{{/if}}
+
 <div class="uk-child-width-1-2" uk-grid>
   {{#if model.letter.content}}
     <section class="">
       {{!-- If text selected --}}
-      {{#if queryText}}
+      {{#if selectedText}}
         <form class="uk-form-stacked">
           {{#if (not this.tagToEdit)}}
             <legend class="uk-legend uk-margin">Tag Entity</legend>
             <section>
               Selected Text:
               <strong>
-                {{this.queryText}}
+                {{this.selectedText}}
               </strong>
             </section>
             <section class="uk-margin-small">
@@ -55,11 +91,11 @@
                 <section class="uk-width-2-3">
                   <form class="uk-search uk-search-default">
                     <span uk-search-icon></span>
-                    <input class="uk-search-input" id="entity-search" type="search">
+                    {{input class="uk-search-input" id="entity-search" type="search" value=this.queryText onkeydown=(action (mut this.queryText) value="target.value")}}
                   </form>
                 </section>
                 <section class="uk-width-1-3">
-                  <UkButton @color="primary">
+                  <UkButton @color="primary" @on-click={{action "getLiteral"}}>
                     Search
                   </UkButton>
                 </section>
@@ -111,9 +147,9 @@
     </section>
     <LetterWrapper>
       <div class="uk-panel uk-panel-scrollable letter-container
-          {{if queryText "no-select"}}">
+          {{if selectedText "no-select"}}">
         <LettersView @letter={{model.letter}} @select={{action "setSelected"}}
-          @showContextMenu={{perform showContextMenu}} @editTag={{perform editTag}}>
+          @editTag={{perform editTag}}>
         </LettersView>
       </div>
     </LetterWrapper>

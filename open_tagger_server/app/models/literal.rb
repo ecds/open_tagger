@@ -15,3 +15,15 @@ class Literal < ApplicationRecord
     entity.nil?
   end
 end
+
+# Entity.all.each do |e|
+#   if e.properties.nil?
+#     e.properties = {}
+#   end
+#   e.properties.keys.each do |p|
+#     if  p.include? 'Property'
+#       e.properties.delete(p)
+#     end
+#   end
+#   e.save
+# end

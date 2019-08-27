@@ -1,0 +1,56 @@
+
+property_4a200c46-346c-4a5f-a5ea-3521b85370b7:
+  id: 4a200c46-346c-4a5f-a5ea-3521b85370b7
+  title: First Name
+
+property_3271f908-f17d-495e-b8fb-eff2c807f325:
+  id: 3271f908-f17d-495e-b8fb-eff2c807f325
+  title: Last Name
+
+property_2bee1fd7-962c-45fe-b91d-1a161c4662d0:
+  id: 2bee1fd7-962c-45fe-b91d-1a161c4662d0
+  title: Dates
+
+property_5ea826ab-23dc-41f0-8860-8586a13e4893:
+  id: 5ea826ab-23dc-41f0-8860-8586a13e4893
+  title: Alternate Names
+
+property_ad49cc16-7dd6-4642-9d9a-a1731c9e9e04:
+  id: ad49cc16-7dd6-4642-9d9a-a1731c9e9e04
+  title: Profile
+
+property_8d275901-3b6c-4404-94db-847112791445:
+  id: 8d275901-3b6c-4404-94db-847112791445
+  title: Name
+
+property_d536a6a7-15b0-4320-bb9e-6b75c712ba64:
+  id: d536a6a7-15b0-4320-bb9e-6b75c712ba64
+  title: Title
+
+property_75e1a75a-fd95-44fd-b7d3-0a2ac1c124e6:
+  id: 75e1a75a-fd95-44fd-b7d3-0a2ac1c124e6
+  title: Author
+
+property_08fcb97f-9900-4857-bf73-f275d5c53134:
+  id: '08fcb97f-9900-4857-bf73-f275d5c53134'
+  title: Publication
+
+property_e27e7db7-fed1-449b-bb29-be524b9bdf9f:
+  id: e27e7db7-fed1-449b-bb29-be524b9bdf9f
+  title: Proposal/Response
+
+property_1d8390c0-a2e1-4ded-be40-5d9f09f2394c:
+  id: 1d8390c0-a2e1-4ded-be40-5d9f09f2394c
+  title: Director
+
+property_8587eecd-33a3-43d2-a2d9-dbcfc82f6c95:
+  id: 8587eecd-33a3-43d2-a2d9-dbcfc82f6c95
+  title: City
+
+property_2dfde58b-73fb-4e4f-9412-669840fa034a:
+  id: 2dfde58b-73fb-4e4f-9412-669840fa034a
+  title: Theatre
+
+property_03475d23-c797-4a5d-b5b8-d7463464cb15:
+  id: 03475d23-c797-4a5d-b5b8-d7463464cb15
+  title: Dates

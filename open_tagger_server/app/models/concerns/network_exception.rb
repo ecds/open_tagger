@@ -22,7 +22,7 @@ module NetworkException
 
   private
 
-  def sleep_interval(tries)
-    (SLEEP_INTERVAL + rand(0.0..1.0)) * tries**2
-  end
+    def sleep_interval(tries)
+      (SLEEP_INTERVAL + rand(0.0..1.0)) * tries**2
+    end
 end

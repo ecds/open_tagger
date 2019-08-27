@@ -83,7 +83,7 @@ class UpdateLetters
             if letter.nil?
               @missing_letters.append(doc.xpath('//letter//metadata//code').first.content)
             else
-              letter.literals << literal
+              letter.entities << entity
             end
           end
         end

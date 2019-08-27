@@ -16,7 +16,7 @@ class ImportFromGoogleSheets
       {
         sheet_id: '1lrbBrMM3cV9d_foQfi5VyJO4gwtl4UkL4N3JWa-fjeo',
         type: 'person',
-        range: 'A2:G'
+        range: 'A2:H'
       },
       {
         sheet_id: '1nd88cZegFqC_IbjY2G8C5nejmkgNCtDlsf-4oMmSykU',
@@ -36,12 +36,12 @@ class ImportFromGoogleSheets
       {
         sheet_id: '1yuQykRVY4S-FQuOg1P-nRQ9C5Ma439e5v9_uVALs2ns',
         type: 'writing',
-        range: 'A2:C'
+        range: 'A2:F'
       },
       {
         sheet_id: '1FUAzp9McmDOK8-xIZk-JdSfomxQYmrjGoBNrhYLkZF4',
         type: 'translating',
-        range: 'A2:G'
+        range: 'A2:H'
       },
       {
         sheet_id: '1lIYE6gGQcq5mbwilzWqOLJchLrc4iAwH0WMdM53axps',
@@ -51,7 +51,7 @@ class ImportFromGoogleSheets
       {
         sheet_id: '1b1J0Gt9NPLsrfXJ-agc2GjCRb-7Upq7w1ddW40dV4i4',
         type: 'attendance',
-        range: 'A2:E'
+        range: 'A2:G'
       },
       {
         sheet_id: '13RbWm78OXzNt6AfjvXzY7b6ldIsFtIrBFaw01v9ciQs',
@@ -61,12 +61,17 @@ class ImportFromGoogleSheets
       {
         sheet_id: '1DVByIJWiDNi78yUs81eidPQYAqL9E6ovsCztimwnCTg',
         type: 'works_of_art',
-        range: 'A2:D'
+        range: 'A2:G'
       },
       {
         sheet_id: '1fOuJX-w3Tv6ZfK8_d6JRM29PIYaZk7i-_5Qdt3AtSck',
         type: 'music',
-        range: 'A2:D'
+        range: 'A2:G'
+      },
+      {
+        sheet_id: '1HeTeJqueJR4TWqgSCMJOgOglLLyYGfKux8YL57OYfg8',
+        type: 'publication',
+        range: 'A2:F'
       }
     ]
     @people_profiles = '1s_dkTpJJCxs5XOhbH6SwYka317buWLTJDw8GXCqsVx8'
@@ -126,6 +131,8 @@ class ImportFromGoogleSheets
           entity = _event(row_values)
         when 'music'
           entity = _music(row_values)
+        when 'publication'
+          entity = _publication(row_values)
         else
           'Entity type in missing or invalid.'
         end
@@ -216,17 +223,19 @@ class ImportFromGoogleSheets
     end
 
     def _attendance(values)
-      p values
       entity = values[:entity]
-      if values[:index] == 2
-        entity.label = values[:value]
-        entity.properties['title'] = values[:value]
-      elsif values[:index] == 0
+      if values[:index] == 0
         entity.legacy_pk = values[:value].to_i
       elsif values[:index] == 1
-        entity.properties['attendance'] = values[:value]
-      elsif values[:index] == 3
-        entity.properties['attends_with'] = values[:value]
+        entity.properties['event_type'] = values[:value]
+      elsif values[:index] == 2
+        entity.label = values[:value]
+      elsif values[:index] == 3 && !values[:value].nil?
+        entity.properties['alternative_spellings'] = values[:value].split(';').map { |e| e.strip }
+      elsif values[:index] == 4
+        entity.properties['place_date'] = values[:value]
+      elsif values[:index] == 5 && !values[:value].nil?
+        entity.properties['performed_by'] = values[:value].split(';').map { |e| e.strip }
       end
       entity
     end
@@ -240,15 +249,16 @@ class ImportFromGoogleSheets
       elsif values[:index] == 2
         entity.properties['first_name'] = values[:value]
       elsif values[:index] == 3
-        entity.properties['dates'] = values[:value]
+        entity.properties['life_dates'] = values[:value]
       elsif values[:index] == 4
         entity.properties['description'] = values[:value]
       elsif values[:index] == 5 && values[:value] != nil
-        values[:value].split(';').each do |v|
-          Literal.find_or_create_by(text: v.tr('"', '').strip, entity: entity)
-        end
+        # values[:value].split(';').each do |v|
+        #   Literal.find_or_create_by(text: v.tr('"', '').strip, entity: entity)
+        # end
+        entity.properties['alternate_names_spellings'] = values[:value].split(',').map { |e| e.tr('"', '').strip }
       elsif values[:index] == 6
-        entity.properties['viaf'] = values[:value]
+        entity.properties['links'] = [values[:value]]
       end
       entity
     end
@@ -260,9 +270,10 @@ class ImportFromGoogleSheets
       elsif values[:index] == 1
         entity.label = values[:value]
       elsif values[:index] == 2 && values[:value] != nil
-        values[:value].split(';').each do |v|
-          Literal.find_or_create_by(text: v.tr('"', '').strip, entity: entity)
-        end
+        # values[:value].split(';').each do |v|
+        #   Literal.find_or_create_by(text: v.tr('"', '').strip, entity: entity)
+        # end
+        entity.properties['alternate_spellings'] = values[:value].split(',').map {|e| e.tr('"', '').strip}
       elsif values[:index] == 3
         entity.properties['description'] = values[:value]
       end
@@ -276,13 +287,14 @@ class ImportFromGoogleSheets
       elsif values[:index] == 1
         entity.label = values[:value]
       elsif values[:index] == 2
-        entity.properties['geonames'] = values[:value]
+        entity.properties['links'] = values[:value]
       elsif values[:index] == 3
         entity.properties['description'] = values[:value]
       elsif values[:index] == 4 && values[:value] != nil
-        values[:value].split(';').each do |v|
-          Literal.find_or_create_by(text: v.tr('"', '').strip, entity: entity)
-        end
+        # values[:value].split(';').each do |v|
+        #   Literal.find_or_create_by(text: v.tr('"', '').strip, entity: entity)
+        # end
+        entity.properties['alternate_spellings'] = values[:value].split(',').map { |e| e.tr('"', '').strip }
       end
       entity
     end
@@ -292,7 +304,7 @@ class ImportFromGoogleSheets
       if values[:index] == 0
         entity.legacy_pk = values[:value].to_i
       elsif values[:index] == 1
-        entity.properties['author'] = values[:value]
+        entity.properties['authors'] = [values[:value]]
       elsif values[:index] == 2
         entity.label = values[:value]
       elsif values[:index] == 3
@@ -308,33 +320,42 @@ class ImportFromGoogleSheets
       elsif values[:index] == 1
         entity.label = values[:value]
       elsif values[:index] == 2
-        entity.properties['proposal_response'] = values[:value]
+        entity.properties['proposal'] = values[:value]
       elsif values[:index] == 3
-        entity.properties['director'] = values[:value]
+        entity.properties['response'] = values[:value]
       elsif values[:index] == 4
-        entity.properties['theatre'] = values[:value]
+        entity.properties['reason'] = values[:value]
       elsif values[:index] == 5
-        entity.properties['city'] = values[:value]
+        entity.properties['director'] = values[:value]
       elsif values[:index] == 6
-        entity.properties['date'] = values[:value]
+        entity.properties['theatre'] = values[:value]
       elsif values[:index] == 7
-        entity.properties['actors'] = values[:value]
+        entity.properties['city'] = values[:value]
       elsif values[:index] == 8
+        entity.properties['date'] = values[:value]
+      elsif values[:index] == 9 && !values[:value].nil?
+        entity.properties['cast'] = values[:value].split(',').map { |c| { actor: c.split('(')[0].strip, role: c.split('(')[-1].tr(')', '').strip } }
+      elsif values[:index] == 10
         entity.properties['notes'] = values[:value]
+      elsif values[:index] == 11
+        entity.properties['staging_beckett'] = values[:value]
       end
       entity
     end
 
-    Waiting for Godot
     def _art(values)
       entity = values[:entity]
       if values[:index] == 0
         entity.legacy_pk = values[:value].to_i
       elsif values[:index] == 1
         entity.properties['artist'] = values[:value]
-      elsif values[:index] == 2
-        entity.label = values[:value]
       elsif values[:index] == 3
+        entity.label = values[:value]
+      elsif values[:index] == 4 && !values[:value].nil?
+        entity.properties['alternative_spellings'] = values[:value].split(',').map { |a| a.strip }
+      elsif values[:index] == 5
+        entity.properties['location'] = values[:value]
+      elsif values[:index] == 6
         entity.properties['owner'] = values[:value]
       end
       entity
@@ -347,12 +368,14 @@ class ImportFromGoogleSheets
       elsif values[:index] == 1
         entity.label = values[:value]
       elsif values[:index] == 2
-        entity.properties['into'] = values[:value]
+        entity.properties['author'] = values[:value]
       elsif values[:index] == 3
-        entity.properties['translator'] = values[:value]
+        entity.properties['translated_into'] = values[:value]
       elsif values[:index] == 4
-        entity.properties['translated_title'] = values[:value]
+        entity.properties['translator'] = values[:value]
       elsif values[:index] == 5
+        entity.properties['translated_title'] = values[:value]
+      elsif values[:index] == 6
         entity.properties['comments'] = values[:value]
       end
       entity
@@ -365,7 +388,9 @@ class ImportFromGoogleSheets
       elsif values[:index] == 1
         entity.label = values[:value]
       elsif values[:index] == 2
-        entity.properties['date_notes'] = values[:value]
+        entity.properties['date'] = values[:value]
+      elsif values[:index] == 3
+        entity.properties['proposal'] = values[:value]
       end
       entity
     end
@@ -391,7 +416,29 @@ class ImportFromGoogleSheets
       elsif values[:index] == 2
         entity.label = values[:value]
       elsif values[:index] == 3
-        entity.properties['identifier'] = values[:value]
+        entity.properties['alternative_titles'] = [values[:value]]
+      elsif values[:index] == 4
+        entity.properties['performed_by'] = [values[:value]]
+      elsif values[:index] == 5
+        entity.properties['description'] = [values[:value]]
+      end
+      entity
+    end
+
+    def _publication(values)
+      entity = values[:entity]
+      if values[:index] == 0
+        entity.legacy_pk = values[:value].to_i
+      elsif values[:index] == 1
+        entity.label = values[:value]
+      elsif values[:index] == 2
+        entity.properties['author'] = values[:value]
+      elsif values[:index] == 3
+        entity.properties['translator'] = values[:value]
+      elsif values[:index] == 4
+        entity.properties['place'] = values[:value]
+      elsif values[:index] == 5
+        entity.properties['notes'] = values[:value]
       end
       entity
     end

@@ -155,6 +155,14 @@ pre {
   border: 1px solid #e5e5e5;
   width: 100%;
 }
+
+.task-running {
+  height: 100vh;
+  background: #f0f8ffbf;
+  position: absolute;
+  width: 100vw;
+  top: 0;
+}
 // person,
 // .person {
 //   background: #1E88E5;

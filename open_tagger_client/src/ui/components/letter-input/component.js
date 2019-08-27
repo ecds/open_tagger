@@ -4,7 +4,6 @@ import Component from '@ember/component';
 export default class LetterInputComponent extends Component {
   attributeBindings = ['contenteditable'];
   contenteditable = true;
-  selectedText = null;
   modal = null;
 
   click() {

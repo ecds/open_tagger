@@ -1,17 +1,21 @@
 class LetterSerializer < ActiveModel::Serializer
-  # has_many :repositories
-  # has_many :recipients
-  # belongs_to :sent_to
-  # belongs_to :sent_from
-  # belongs_to :country
-  # belongs_to :city
-  # belongs_to :location
-  # belongs_to :letter_type
-  # belongs_to :sender
-  # belongs_to :recipient
-  # belongs_to :owner
-  # belongs_to :language
-  # belongs_to :place_literal
-  has_many :literals
-  attributes :id, :content, :date, :code, :recipient_list, :legacy_pk
+  belongs_to :recipient
+  attributes :id, :date, :code, :recipient_list, :legacy_pk, :addressed_to,
+  :addressed_to,
+  :addressed_from,
+  :destination,
+  :recipient,
+  :typed,
+  :signed,
+  :physical_desc,
+  :physical_detail,
+  :physical_notes,
+  :repository_info,
+  :postcard_image,
+  :leaves,
+  :sides,
+  :postmark,
+  :verified,
+  :envelope,
+  :notes
 end
