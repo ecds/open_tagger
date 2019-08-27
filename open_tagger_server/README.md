@@ -92,7 +92,7 @@ Any or all of the following parameters maybe be added to the request. If a param
       "coordinates": {
         "lat": "FLOAT",
         "lng": "FLOAT"
-      }
+      },
       "description": "",
       "alternate_spellings": [
         ""
