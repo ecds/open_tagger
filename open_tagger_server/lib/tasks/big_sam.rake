@@ -2,104 +2,216 @@ namespace :big_sam do
   task :letters_from_csv, [:csv] => :environment do |t, args|
     require 'csv'
     options = Rack::Utils.parse_nested_query(args[:csv])
-    p options['csv']
-    rows = CSV.read(options['csv'], headers: true)
+    rows = CSV.table(options['csv'], headers: true)
     rows.each do |row|
-      p row['ID']
-      if row['Day'] == '0'
-        row['Day'] = '1'
+      if row[:day] == '0'
+        row[:day] = '1'
       end
-      if row['Month'] == '0'
-        row['Month'] = '1'
+      if row[:month] == '0'
+        row[:month] = '1'
       end
-      p "19#{row['Year']} #{row['Month']} #{row['Day']}"
-
-
-      letter = Letter.new(
-        code: row['Code'],
-        date: DateTime.new("19#{row['Year']}".to_i, row['Month'].to_i, row['Day'].to_i),
-        legacy_pk: row['ID'],
-        addressed_to: row['Addressed to (Actual)'],
-        addressed_from: row['Addressed from (Actual)'],
-        # sender: row['Sender'],
-        physical_desc: row['PhysDes'],
-        physical_detail: row['phys descr detail'],
-        physical_notes: row['PhysDes notes'],
-        repository_info: row['Repository information'],
-        postcard_image: row['Postcard Image'],
-        leaves: row['leves'],
-        sides: row['sides'],
-        postmark: row['Postmark (Actual)'],
-        notes: row['Additional'],
-        letter_owner: LetterOwner.find_or_create_by(label: row['OwnerRights']),
-        file_folder: FileFolder.find_or_create_by(label: row['File']),
-        typed: row['Autograph or Typed'] == 'T' ? true : false,
-        signed: row['initialed or signed'] == 'S' ? true : false,
-        envelope: row['Envelope'] == 'E' ? true : false,
-        verified: row['Verified'] == 'Y' ? true : false
-      )
-
-      from = Entity.find_or_create_by(
-        label: "#{row['Reg. Place written']} #{row['Reg. Place written city']} #{row['Reg. Place written country']}",
-        entity_type: EntityType.find_or_create_by(label: 'place')
-      )
-
-      letter.places_written << from
-
-      if row['Reg. Place written, second city']
-        second_city = Entity.find_or_create_by(
-          label: row['Reg. Place written, second city'],
-          entity_type: EntityType.find_or_create_by(label: 'place')
-        )
-        letter.places_written << second_city
+      if row[:year] == '0'
+        row[:year] = '99'
       end
 
-      letter.recipient = Entity.find_or_create_by(
-        label: row['Reg. recipient'],
-        entity_type: EntityType.find_or_create_by(label: 'person')
-      )
+      if row[:day].is_a?(String)
+        row[:day] = row[:day].gsub(/[\[!@%&?"\]]/, '').to_i
+      end
+      if row[:month].is_a?(String)
+        row[:month] = row[:month].gsub(/[\[!@%&?"\]]/, '').to_i
+      end
+      if row[:year].is_a?(String)
+        row[:year] = "19#{row[:year]}".gsub(/[\[!@%&?"\]]/, '').to_i
+      end
 
-      letter.destination = Entity.find_or_create_by(
-        label: "#{row['Reg place sent']} #{row['Reg. PlaceSent City']} #{row['Reg. PlaceSent Country']}",
-        entity_type: EntityType.find_or_create_by(label: 'place')
-      )
+      if row[:year].to_s.size == 2
+        row[:year] = row[:year] + 1900
+      end
 
-      if row['First Repository']
-        repo = Repository.find_or_create_by(label: row['First Repository'])
-        repo.format = row['First Format']
-        repo.american = row['Euro or Am?'] == 'American' ? true : false
-        repo.public = row['First Public?'] == 'public' ? true : false
-        if row['First Collection']
-          repo.collections << Collection.find_or_create_by(label: row['First Collection'])
+      # existing = Letter.find_by(legacy_pk: row['ID'])
+      # next if existing
+
+      letter = Letter.find_or_create_by(legacy_pk: row[:id])
+
+      letter.attributes = {
+        code: row[:code],
+        legacy_pk: row[:id],
+        addressed_to: row[:addressed_to_actual],
+        addressed_from: row[:addressed_from_actual],
+        physical_desc: row[:physdes],
+        physical_detail: row[:phys_descr_detail],
+        physical_notes: row[:physdes_notes],
+        repository_info: row[:repository_information],
+        postcard_image: row[:postcard_image],
+        leaves: row[:leves],
+        sides: row[:sides],
+        postmark: row[:postmark_actual],
+        notes: row[:dditional],
+        letter_owner: LetterOwner.find_or_create_by(label: row[:ownerrights]),
+        file_folder: FileFolder.find_or_create_by(label: row[:file]),
+        typed: row[:autograph_or_typed] == 'T' ? true : false,
+        signed: row[:initialed_or_signed] == 'S' ? true : false,
+        envelope: row[:envelope] == 'E' ? true : false,
+        verified: row[:verified] == 'Y' ? true : false
+      }
+
+      begin
+        if row[:year] != 0
+          letter.date = DateTime.new(row[:year], row[:month], row[:day])
+        end
+      rescue ArgumentError
+        puts 'Bad date'
+      end
+
+      if row[:reg_place_written]
+        from = get_entity(row[:reg_place_written], 'place')
+        begin
+          letter.places_written << from
+        rescue ActiveRecord::RecordInvalid
+          #
+        end
+        if row[:addressed_from_actual] && row[:addressed_from_actual] != from.label
+          from.alternate_spellings << AlternateSpelling.find_or_create_by(label: row[:addressed_from_actual])
+        end
+      end
+
+      if row[:reg_place_written_city]
+        begin
+          letter.places_written << get_entity(row[:reg_place_written_city], 'place')
+        rescue ActiveRecord::RecordInvalid
+          #
+        end
+      end
+
+      if row[:reg_place_written_country]
+        begin
+          letter.places_written << get_entity(row[:reg_place_written_country], 'place')
+        rescue ActiveRecord::RecordInvalid
+          #
+        end
+      end
+
+      if row[:reg_place_written_second_city]
+        begin
+          letter.places_written << get_entity(row[:reg_place_written_second_city], 'place')
+        rescue ActiveRecord::RecordInvalid
+          #
+        end
+      end
+
+      if row[:reg_recipient]
+        row[:reg_recipient].split(';').each do |recipient|
+          p recipient.downcase.strip.gsub(/[\[!@%&?"\]]/, '')
+          entity = get_entity(row[:reg_recipient], 'person')
+          begin
+            letter.recipients << entity
+          rescue ActiveRecord::RecordInvalid
+            #
+          end
+          if row[:addressed_to_actual]
+            parts = row[:addressed_to_actual].split(',')
+            person = parts.shift
+            if person != entity.label
+              entity.alternate_spellings << AlternateSpelling.find_or_create_by(label: person)
+            end
+          end
+        end
+
+        if row[:reg_placesent_sent]
+          destination = get_entity(row[:reg_placesent_sent], 'place')
+          letter.places_sent << destination
+          if row[:reg_recipient]
+            parts = row[:addressed_to_actual].split(',')
+            person = parts.shift
+            if parts.first
+              destination.alternate_spellings << AlternateSpelling.find_or_create_by(label: person)
+            end
+          end
+        end
+
+        if row[:reg_placesent_city]
+          begin
+            letter.places_sent << get_entity(row[:reg_placesent_city], 'place')
+          rescue ActiveRecord::RecordInvalid
+            #
+          end
+        end
+
+        if row[:reg_placesent_country]
+          begin
+            letter.places_sent << get_entity(row[:reg_placesent_country], 'place')
+          rescue ActiveRecord::RecordInvalid
+            #
+          end
+        end
+      end
+
+      if row[:first_repository]
+        repo = Repository.find_or_create_by(label: row[:first_repository])
+        repo.format = row[:first_format]
+        repo.american = row[:euro_or_am] == 'American' ? true : false
+        repo.public = row[:first_public] == 'public' ? true : false
+        if row[:first_collection]
+          collection = Collection.find_or_create_by(label: row[:first_collection])
+          repo.collections << collection
+          letter.collections << collection
         end
         repo.save
         letter.repositories << repo
       end
 
-      if row['Second Repository']
-        repo = Repository.find_or_create_by(label: row['Second Repository'])
-        repo.format = row['Second Format']
-        repo.public = row['Second Public?'] == 'Public' ? true : false
-        if row['Second Collection']
-          repo.collections << Collection.find_or_create_by(label: row['Second Collection'])
+      if row[:second_repository]
+        repo = Repository.find_or_create_by(label: row[:second_repository])
+        repo.format = row[:second_format]
+        repo.public = row[:second_public] == 'Public' ? true : false
+        if row[:second_collection]
+          collection = Collection.find_or_create_by(label: row[:second_collection])
+          repo.collections << collection
+          letter.collections << collection
         end
         repo.save
         letter.repositories << repo
       end
 
-      if row['PlacePrevPubl']
-        letter.letter_publisher = LetterPublisher.find_or_create_by(label: row['PlacePrevPubl'])
+      if row[:placeprevpubl]
+        letter.letter_publisher = LetterPublisher.find_or_create_by(label: row[:placeprevpubl])
       end
 
-      letter.typed = row['Autograph or Typed'] == 'T' ? true : false
+      if row[:sender]
+        row[:sender].split(';').each do |sender|
+          entity = get_entity(sender, 'person')
+          letter.senders << entity
+        end
+      end
 
-      letter.signed = row['initialed or signed'] == 'S' ? true : false
+      if row[:primarylang]
+        lang = Language.where('LOWER(languages.label) = ?', row[:primarylang].downcase.strip)
+                       .first_or_create(
+                         label: row[:primarylang]
+                       )
+        letter.language = lang
+      end
 
-      letter.envelope = row['Envelope'] == 'E' ? true : false
+      letter.typed = row[:autograph_or_typed] == 'T' ? true : false
 
-      letter.verified = row['Verified'] == 'Y' ? true : false
+      letter.signed = row[:initialed_or_signed] == 'S' ? true : false
+
+      letter.envelope = row[:envelope] == 'E' ? true : false
+
+      letter.verified = row[:verified] == 'Y' ? true : false
+
+      # letter.validate!
 
       letter.save
     end
+
+  end
+  def get_entity(label, type)
+    Entity.by_type(type)
+          .where('LOWER(entities.label) = ?', label.downcase.strip.gsub(/[\[!@%&?"\]]/, ''))
+          .first_or_create(
+            label: label.strip.gsub(/[\[!@%&?"\]]/, ''),
+            entity_type: EntityType.find_by(label: type)
+          )
   end
 end

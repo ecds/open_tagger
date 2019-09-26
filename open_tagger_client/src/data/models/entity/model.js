@@ -13,5 +13,7 @@ export default Model.extend({
   entityType: belongsTo('entity-type'),
   suggestion: attr('string'),
   letters: hasMany('letter'),
-  properties: attr()
+  properties: attr(),
+  type_label: attr('string'),
+  flagged: attr('boolean')
 });

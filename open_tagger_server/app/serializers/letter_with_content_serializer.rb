@@ -1,4 +1,4 @@
 class LetterWithContentSerializer < ActiveModel::Serializer
-  belongs_to :recipient
-  attributes :id, :date, :code, :recipient_list, :legacy_pk, :content
+  has_many :entities_mentioned
+  attributes :id, :date, :recipient_list, :legacy_pk, :content, :entities_mentioned_list, :formatted_date
 end

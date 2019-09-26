@@ -14,5 +14,10 @@ export default class LettersRoute extends Route {
     this._super(controller, letters);
     controller.set('letters', letters);
     controller.set('meta', meta);
+    this.store.findAll('letter-date').then(dates => {
+      controller.set('letterDates', dates.firstObject);
+      controller.set('startDate', dates.firstObject.min);
+      controller.set('endDate', dates.firstObject.max);
+    })
   }
 }

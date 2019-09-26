@@ -168,7 +168,7 @@ GEM
       multi_json
     os (1.0.1)
     pager_api (0.3.2)
-    pagy (3.5.0)
+    pagy (3.5.1)
     pg (1.1.4)
     pg_search (2.3.0)
       activerecord (>= 4.2)

@@ -11,6 +11,7 @@ class LettersController < ApplicationController
     @letters = Letter.where(nil)
     @filter_params.each do |key, value|
       next if value.nil?
+      next if value.length < 1
       values = value.split(',')
       @letters = @letters.public_send(key, values.shift())
       if values.present?
@@ -20,16 +21,20 @@ class LettersController < ApplicationController
       end
     end
     @letters = @letters.between(@start, @end)
+    if ['http://ot.ecdsdev.org', 'http://localhost:4200'].exclude? request.headers['HTTP_ORIGIN']
+      @letters = @letters._public
+    end
     paginate @letters.order('date ASC'), per_page: @items
   end
 
   # GET /letters/1
   def show
     @letter = Letter.find(params[:id])
-    if params[:content] == true
+    if ['http://ot.ecdsdev.org', 'http://localhost:4200'].include? request.headers['HTTP_ORIGIN']
       render json: @letter, serializer: LetterWithContentSerializer
+    else
+      render json: @letter, include: ['repositorites', 'places-written']
     end
-    render json: @letter#, include: []
   end
 
   # # POST /letters
@@ -80,7 +85,8 @@ class LettersController < ApplicationController
                 :last,
                 :wikidata_id,
                 :literals,
-                :content
+                :content,
+                :entities_mentioned
               ]
         )
       end

@@ -1,10 +1,14 @@
 class LetterSerializer < ActiveModel::Serializer
-  belongs_to :recipient
+  # belongs_to :recipient
+  has_many :recipients
+  has_many :repositories
+  has_many :places_written
+  has_many :entities_mentioned
+  belongs_to :letter_owner
+  belongs_to :letter_publisher
   attributes :id, :date, :code, :recipient_list, :legacy_pk, :addressed_to,
   :addressed_to,
   :addressed_from,
-  :destination,
-  :recipient,
   :typed,
   :signed,
   :physical_desc,
@@ -17,5 +21,10 @@ class LetterSerializer < ActiveModel::Serializer
   :postmark,
   :verified,
   :envelope,
-  :notes
+  :notes,
+  :entity_count,
+  :recipients,
+  :entities_mentioned_list,
+  :letter_publisher,
+  :formatted_date
 end

@@ -6,8 +6,7 @@ class ApplicationController < ActionController::API
 
   private
 
-  def set_items
-    @items = params.has_key?('items') ? params[:items].to_i : 25
-  end
-
+    def set_items
+      @items = params.has_key?('items') ? params[:items].to_i : 25
+    end
 end

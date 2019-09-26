@@ -1,11 +1,79 @@
-{{#data-sorter data=byDate as |ds|}}
-  {{#data-table data=ds.data classNames=tableClassNames onRowSingleClick=(action "onRowSingleClick")
-          as |t|}}
-    {{t.column propertyName="code" name="Letter Code"}}
-    {{!-- {{t.sortableColumn propertyName="legacy_pk" name="Legacy ID" sortinformationupdated=(action ds.onsortfieldupdated)}} --}}
-    {{!-- {{t.sortableColumn propertyName="recipient_list" name="Recipients" sortinformationupdated=(action ds.onsortfieldupdated)}} --}}
-    {{t.sortableColumn propertyName="dateSent" name="Date Sent" sortinformationupdated=(action ds.onsortfieldupdated)}}
-    {{t.column propertyName="literals.length" name="Tag Count"}}
-  {{/data-table}}
-{{/data-sorter}}
-{{pager-component next=(action "nextPageRequested") previous=(action "prevPageRequested") currentPage=currentPage nextDisabled=nextDisabled}}
+<section uk-grid class="uk-child-width-1-3 uk-form-stacked uk-margin-small">
+  <section>
+    <label class="uk-form-label">
+      Start Date:
+    </label>
+    <section uk-form-custom target="true">
+      <PikadayInput
+        class="uk-input uk-form-width-medium"
+        @minDate={{letterDates.min}}
+        @maxDate={{letterDates.max}}
+        @value={{letterDates.min}}
+        @onSelection={{action "fetchRange" "min"}} />
+    </section>
+    <UkButton @color="primary" @size="small" @on-click={{action "resetStart"}}>Reset</UkButton>
+  </section>
+  <section>
+    <label class="uk-form-label">
+      End Date:
+    </label>
+    <section uk-form-custom target="true">
+      <PikadayInput
+        class="uk-input"
+        @minDate={{letterDates.min}}
+        @maxDate={{letterDates.max}}
+        @value={{letterDates.max}}
+        @onSelection={{action "fetchRange" "max"}} />
+    </section>
+    <UkButton @color="primary" @size="small" @on-click={{action "resetEnd"}}>Reset</UkButton>
+  </section>
+  <section>
+    <label class="uk-form-label">
+      Recipient:
+    </label>
+    <section uk-grid class="uk-form-controls">
+      {{!-- <button class="uk-form-icon uk-form-icon-flip" onclick={{action "clearRecipientsFilter"}} uk-icon="icon: close"></button> --}}
+      <section class="uk-width-2-3">
+        <input class="uk-input " id="autoComplete" tabindex="1" disabled={{this.autoCompleteEmpty}} placeholder={{if this.autoCompleteEmpty "Loading..."}}>
+        <AutoComplete @filterRecipients={{action "filterRecipients"}} @enableAutoComplete={{action "enableAutoComplete"}}/>
+      </section>
+      <section class="uk-width-1-3 uk-padding-small uk-padding-remove-top uk-padding-remove-bottom">
+        <UkButton @color="primary" @size="small" @on-click={{action "clearRecipientsFilter"}}>Clear</UkButton>
+      </section>
+    </section>
+  </section>
+</section>
+<section class="uk-padding-top uk-padding uk-padding-remove-left uk-padding-remove-bottom">
+  <ul class="uk-pagination" uk-margin>
+    <li><UkButton @color="link" @on-click={{action "prevPageRequested"}}><span uk-pagination-previous></span></UkButton></li>
+    <li class="uk-active"><span>{{currentPage}}</span></li>
+    {{#each this.nextPages as |page|}}
+      <li><UkButton @color="link" @on-click={{action "jumpToPage" page}}>{{page}}</UkButton></li>
+    {{/each}}
+    <li class="uk-disabled"><span>...</span></li>
+    <li><UkButton @color="link" @on-click={{action "jumpToPage" this.lastPage}}>{{this.lastPage}}</UkButton></li>
+    <li><UkButton  @color="link" @on-click={{action "nextPageRequested"}}><span uk-pagination-next></span></UkButton></li>
+  </ul>
+</section>
+<section class="letter-list">
+  {{#data-sorter data=byDate as |ds|}}
+    {{#data-table data=ds.data classNames=tableClassNames onRowSingleClick=(action "onRowSingleClick")
+            as |t|}}
+      {{t.column propertyName="recipient_list" name="Recipient"}}
+      {{!-- {{t.sortableColumn propertyName="legacy_pk" name="Legacy ID" sortinformationupdated=(action ds.onsortfieldupdated)}} --}}
+      {{!-- {{t.sortableColumn propertyName="recipient_list" name="Recipients" sortinformationupdated=(action ds.onsortfieldupdated)}} --}}
+      {{t.sortableColumn propertyName="formatted_date" name="Date Sent" sortinformationupdated=(action ds.onsortfieldupdated)}}
+      {{t.column propertyName="entity-count" name="Tag Count"}}
+    {{/data-table}}
+  {{/data-sorter}}
+  <ul class="uk-pagination" uk-margin>
+    <li><UkButton @color="link" @on-click={{action "prevPageRequested"}}><span uk-pagination-previous></span></UkButton></li>
+    <li class="uk-active"><span>{{currentPage}}</span></li>
+    {{#each this.nextPages as |page|}}
+      <li><UkButton @color="link" @on-click={{action "jumpToPage" page}}>{{page}}</UkButton></li>
+    {{/each}}
+    <li class="uk-disabled"><span>...</span></li>
+    <li><UkButton @color="link" @on-click={{action "jumpToPage" this.lastPage}}>{{this.lastPage}}</UkButton></li>
+    <li><UkButton  @color="link" @on-click={{action "nextPageRequested"}}><span uk-pagination-next></span></UkButton></li>
+  </ul>
+</section>

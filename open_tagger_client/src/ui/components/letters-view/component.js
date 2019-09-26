@@ -1,12 +1,12 @@
 import Component from '@ember/component';
-import {
-  tagName
-} from '@ember-decorators/component';
-// import UIkit from 'uikit';
+import { tagName } from '@ember-decorators/component';
+
 
 @tagName('pre')
 export default class LettersView extends Component {
+  contenteditable = this.contenteditable;
   letterElements = ['PRE', 'CONTENT', 'LETTER', 'METADATA'];
+  attributeBindings = ['contenteditable'];
   
   didInsertElement() {
     this.element.innerHTML = this.letter.content;
@@ -15,6 +15,7 @@ export default class LettersView extends Component {
   mouseUp(event) {
     if (!this.letterElements.includes(event.target.tagName)) return;
     if (this.element.contains(document.getElementsByTagName('tmp')[0])) return;
+    if (this.contenteditable) return;
     let selected = document.getSelection();
     let tmpEl = document.createElement('tmp');
     if (document.getSelection().type !== 'Range') return;
@@ -28,24 +29,11 @@ export default class LettersView extends Component {
     this.select(selected.toString(), tmpEl);
   }
 
-  contextMenu(event) {
-    // console.log(event.target.tagName);
-    if (event.target.tagName === 'PRE') return;
-    event.preventDefault();
-    this.showContextMenu(event);
-    return false;
-  }
-
-  // TODO set tooltip!
-  // mouseMove(event) {
-  //   if (event.target.tagName === 'PRE') return;
-  //   event.target.setAttribute('uk-tooltip', 'oh hello');
-  //   UIkit.tooltip(event.target).show();
-  // }
-
   click(event) {
     if (event.target.tagName === 'PRE') return;
+    if (event.target.tagName === 'CONTENT') return;
     if (document.getSelection().type == 'Range') return;
+    if (this.contenteditable) return;
     this.editTag(event);
   }
 }

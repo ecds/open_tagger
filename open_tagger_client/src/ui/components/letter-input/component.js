@@ -1,5 +1,4 @@
 import Component from '@ember/component';
-// import UIkit from 'uikit';
 
 export default class LetterInputComponent extends Component {
   attributeBindings = ['contenteditable'];
@@ -19,11 +18,4 @@ export default class LetterInputComponent extends Component {
       this.setLetter(pastedText);
     });
   }
-
-  // didInsertElement() {
-  //   this.set(
-  //     'modal',
-  //     UIkit.modal(document.getElementById('modal-center'))
-  //   );
-  // }
 }

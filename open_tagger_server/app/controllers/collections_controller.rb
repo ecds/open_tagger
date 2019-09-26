@@ -3,7 +3,7 @@ class CollectionsController < ApplicationController
 
   # GET /collections
   def index
-    @collections = Collection.all
+    @collections = Collection._public
 
     render json: @collections
   end

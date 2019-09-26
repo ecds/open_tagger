@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_10_181548) do
+ActiveRecord::Schema.define(version: 2019_09_26_161458) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -18,10 +18,17 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
   enable_extension "unaccent"
   enable_extension "uuid-ossp"
 
+  create_table "alternate_spellings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "label"
+    t.uuid "entity_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entity_id"], name: "index_alternate_spellings_on_entity_id"
+  end
+
   create_table "collections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "label"
-    t.bigint "repository_id"
-    t.index ["repository_id"], name: "index_collections_on_repository_id"
+    t.uuid "repository_id"
   end
 
   create_table "entities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -33,6 +40,7 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
     t.bigint "entity_type_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "flagged"
     t.index ["entity_type_id"], name: "index_entities_on_entity_type_id"
   end
 
@@ -51,6 +59,15 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
     t.string "label"
   end
 
+  create_table "languages", force: :cascade do |t|
+    t.string "label"
+  end
+
+  create_table "letter_collections", force: :cascade do |t|
+    t.uuid "letter_id"
+    t.uuid "collection_id"
+  end
+
   create_table "letter_owners", force: :cascade do |t|
     t.string "label"
   end
@@ -59,18 +76,36 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
     t.uuid "letter_id"
     t.uuid "entity_id"
     t.index ["entity_id"], name: "index_letter_place_sent_on_entity_id"
+    t.index ["letter_id", "entity_id"], name: "index_letter_places_sent_on_letter_id_and_entity_id", unique: true
     t.index ["letter_id"], name: "index_letter_place_sent_on_letter_id"
+  end
+
+  create_table "letter_place_sents", force: :cascade do |t|
+    t.uuid "letter_id"
+    t.uuid "entity_id"
+    t.index ["entity_id"], name: "index_letter_place_sents_on_entity_id"
+    t.index ["letter_id", "entity_id"], name: "index_letter_places_sents_on_letter_id_and_entity_id", unique: true
+    t.index ["letter_id"], name: "index_letter_place_sents_on_letter_id"
   end
 
   create_table "letter_place_writtens", force: :cascade do |t|
     t.uuid "letter_id"
     t.uuid "entity_id"
     t.index ["entity_id"], name: "index_letter_place_writtens_on_entity_id"
+    t.index ["letter_id", "entity_id"], name: "index_letter_places_written_on_letter_id_and_entity_id", unique: true
     t.index ["letter_id"], name: "index_letter_place_writtens_on_letter_id"
   end
 
   create_table "letter_publishers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "label"
+  end
+
+  create_table "letter_recipients", force: :cascade do |t|
+    t.uuid "letter_id"
+    t.uuid "entity_id"
+    t.index ["entity_id"], name: "index_letter_recipients_on_entity_id"
+    t.index ["letter_id", "entity_id"], name: "index_letter_recipients_on_letter_id_and_entity_id", unique: true
+    t.index ["letter_id"], name: "index_letter_recipients_on_letter_id"
   end
 
   create_table "letter_repositories", force: :cascade do |t|
@@ -80,14 +115,24 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
     t.index ["repository_id"], name: "index_letter_repositories_on_repository_id"
   end
 
+  create_table "letter_rerecipients", force: :cascade do |t|
+    t.uuid "letter_id"
+    t.uuid "entity_id"
+    t.index ["entity_id"], name: "index_letter_repcipeints_on_entity_id"
+    t.index ["letter_id"], name: "index_letter_repcipients_on_letter_id"
+  end
+
+  create_table "letter_senders", force: :cascade do |t|
+    t.uuid "letter_id"
+    t.uuid "entity_id"
+  end
+
   create_table "letters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "legacy_pk"
     t.string "code"
     t.datetime "date"
     t.string "addressed_to"
     t.string "addressed_from"
-    t.string "destination"
-    t.uuid "recipient"
     t.boolean "typed"
     t.boolean "signed"
     t.string "physical_desc"
@@ -107,9 +152,14 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
     t.bigint "letter_publisher_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "owner_rights_id"
+    t.bigint "language_id"
+    t.boolean "flagged"
     t.index ["file_folder_id"], name: "index_letters_on_file_folder_id"
+    t.index ["language_id"], name: "index_letters_on_languages_id"
     t.index ["letter_owner_id"], name: "index_letters_on_letter_owner_id"
     t.index ["letter_publisher_id"], name: "index_letters_on_letter_publisher_id"
+    t.index ["owner_rights_id"], name: "index_letters_on_owner_rights_id"
   end
 
   create_table "literals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -126,8 +176,12 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
     t.uuid "entity_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["letter_id"], name: "index_mentions_on_letter_id"
     t.index ["entity_id"], name: "index_mentions_on_entity_id"
+    t.index ["letter_id"], name: "index_mentions_on_letter_id"
+  end
+
+  create_table "owner_rights", force: :cascade do |t|
+    t.string "label"
   end
 
   create_table "places_written", force: :cascade do |t|
@@ -164,4 +218,7 @@ ActiveRecord::Schema.define(version: 2019_07_10_181548) do
     t.index ["properties_id"], name: "index_type_properties_on_properties_id"
   end
 
+  add_foreign_key "alternate_spellings", "entities"
+  add_foreign_key "letters", "languages"
+  add_foreign_key "letters", "owner_rights", column: "owner_rights_id"
 end

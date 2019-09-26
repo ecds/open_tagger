@@ -1,22 +1,22 @@
 <section class="uk-margin">
-  <section class="uk-text-large">
+  {{!-- <section class="uk-text-large">
     Search Results
-  </section>
+  </section> --}}
 
-  <ul uk-accordion>
-    {{#if @matches}}
+  {{!-- <ul uk-accordion> --}}
+    {{!-- {{#if @matches}}
       <li>
         <a class="uk-accordion-title" href="#">
           Matches {{@matches.length}}
         </a>
         <dl class="uk-description-list uk-description-list-divider uk-accordion-content">
           {{#each @matches as |match|}}
-            <dt role="button" onclick={{perform @addExistingLiteral match}}>
+            <dt role="button" onclick={{perform @addExistingEntity match}}>
               {{{match.entity.label}}}
             </dt>
-            <dd role="button" onclick={{perform @addExistingLiteral match}}>
-              {{#if match.entity.description}}
-                {{{match.entity.description}}}
+            <dd role="button" onclick={{perform @addExistingEntity match}}>
+              {{#if match.entity.properties.description}}
+                {{{match.entity.properties.description}}}
               {{else}}
                 "No description"
               {{/if}}
@@ -24,23 +24,23 @@
           {{/each}}
         </dl>
       </li>
-    {{/if}}
+    {{/if}} --}}
     {{#if results}}
-      <li>
-        <a class="uk-accordion-title" href="#">
+      {{!-- <li> --}}
+        <section class="uk-text-large">
           Suggestions from database {{@results.length}}
-        </a>
+        </section>
         <dl class="uk-description-list uk-description-list-divider  uk-accordion-content">
           {{#each @results as |result|}}
-            <dt role="button" onclick={{perform @addLiteral result}}>
-              {{result.label}}
+            <dt class="result" role="button" onclick={{perform @addExistingEntity result}}>
+              {{{result.label}}} {{if (eq result.type_label 'Person') (concat '(' result.properties.life_dates ')')}}
             </dt>
-            <dd role="button" onclick={{perform @addLiteral result}}>
-              {{if result.description result.description "No description"}}
+            <dd role="button" onclick={{perform @addExistingEntity result}}>
+              {{{if result.properties.description result.properties.description "No description"}}}
             </dd>
           {{/each}}
         </dl>
-      </li>
+      {{!-- </li> --}}
       {{!-- {{else}}
       <li>
         <i>
@@ -48,5 +48,5 @@
         </i>
       </li> --}}
     {{/if}}
-  </ul>
+  {{!-- </ul> --}}
 </section>

@@ -67,7 +67,7 @@ gem 'json-ld'
 # Pagination
 gem 'pagy'
 gem 'pager_api'
-
+# gem 'kaminari'
 # gem 'open-uri'
 gem 'nokogiri'
 

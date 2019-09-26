@@ -2,6 +2,7 @@
 @import 'variables-theme.scss';
 @import 'uikit-theme';
 @import 'uikit';
+// @import 'autocomplete';
 
 // $base-em-color: #64DD17;
 // em { color: $base-em-color; }
@@ -38,10 +39,26 @@ pre {
   color: white !important;
 }
 
+.letter-list {
+  tr {
+    cursor: pointer;
+  }
+}
+
+.auto-complete-list {
+  background: #d5d2d2;
+  position: absolute;
+
+  li {
+    cursor: pointer;
+  }
+}
+
 .person {
   person {
     background: $tag-background;
     color: $tag-color;
+    cursor: pointer;
     &.flag {
       @include flagged;
     }
@@ -52,6 +69,7 @@ pre {
   place {
     background: $tag-background;
     color: $tag-color;
+    cursor: pointer;
     &.flag {
       @include flagged;
     }
@@ -62,16 +80,18 @@ pre {
   writing {
     background: $tag-background;
     color: $tag-color;
+    cursor: pointer;
     &.flag {
       @include flagged;
     }
   }
 }
 
-.event {
-  event {
+.public_events {
+  public_events {
     background: $tag-background;
     color: $tag-color;
+    cursor: pointer;
     &.flag {
       @include flagged;
     }
@@ -82,26 +102,51 @@ pre {
   translating {
     background: $tag-background;
     color: $tag-color;
+    cursor: pointer;
     &.flag {
       @include flagged;
     }
   }
 }
 
-.event-attended {
-  event-attended {
+.attendance {
+  attendance {
     background: $tag-background;
     color: $tag-color;
+    cursor: pointer;
     &.flag {
       @include flagged;
     }
   }
 }
 
-.public-event {
-  public-event {
+.music {
+  music {
     background: $tag-background;
     color: $tag-color;
+    cursor: pointer;
+    &.flag {
+      @include flagged;
+    }
+  }
+}
+
+.publication {
+  publication {
+    background: $tag-background;
+    color: $tag-color;
+    cursor: pointer;
+    &.flag {
+      @include flagged;
+    }
+  }
+}
+
+.works_of_art  {
+  works_of_art {
+    background: $tag-background;
+    color: $tag-color;
+    cursor: pointer;
     &.flag {
       @include flagged;
     }
@@ -112,6 +157,7 @@ pre {
   production {
     background: $tag-background;
     color: $tag-color;
+    cursor: pointer;
     &.flag {
       @include flagged;
     }
@@ -122,6 +168,7 @@ pre {
   reading {
     background: #424242;
     color: white;
+    cursor: pointer;
     &.flag {
       @include flagged;
     }
@@ -132,6 +179,7 @@ pre {
   organization {
     background: #424242;
     color: white;
+    cursor: pointer;
     &.flag {
       @include flagged;
     }
@@ -163,57 +211,19 @@ pre {
   width: 100vw;
   top: 0;
 }
-// person,
-// .person {
-//   background: #1E88E5;
-// }
 
-// place,
-// .place {
-//   background: #43A047;
-// }
-
-// writing,
-// .writing {
-//   background: #FF3D00;
-// }
-
-// event,
-// .event {
-//   background: #651FFF;
-// }
-
-// translating,
-// .translating {
-//   background: #E65100;
-// }
-
-// event-attended,
-// .event-attended {
-//   background: #FF4081;
-// }
-
-// production,
-// .production {
-//   background: #009688;
-// }
-
-// reading,
-// .reading {
-//   background: #0097A7
-// }
-
-// public-event,
-// .public-event {
-//   background: #AA00FF;
-// }
-
-dt {
+dt.result {
 
   &:hover,
   &:hover+dd {
     background: lightgreen;
     cursor: pointer;
+  }
+}
+
+dl {
+  .flagged {
+    background: rgba(213, 0, 0, 0.37);
   }
 }
 

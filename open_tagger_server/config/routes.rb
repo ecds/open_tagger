@@ -14,4 +14,6 @@ Rails.application.routes.draw do
   # resources :people
   get '/search-entities', to: 'entities#search'
   resources :entities
+  get '/letter-dates', to: 'letter_dates#index'
+  get '/letter-recipients', to: 'letter_recipients#index'
 end

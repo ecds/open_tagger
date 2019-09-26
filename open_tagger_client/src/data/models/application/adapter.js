@@ -14,6 +14,13 @@ import DS from 'ember-data';
 // });
 
 export default DS.JSONAPIAdapter.extend({
-  host: 'http://ot-api.ecdsdev.org',
-  // host: 'http://ot-api.ecdsdev.org'
+  init() {
+    this._super(...arguments);
+    this.set('headers', {
+      'X-API-KEY': 'secret'
+    });
+  },
+  
+  host: 'http://ot-api.ecdsdev.org'
+  // host: 'http://192.168.26.128:3000'
 });

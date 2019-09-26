@@ -137,6 +137,7 @@ class ImportFromGoogleSheets
           'Entity type in missing or invalid.'
         end
       end
+      next if entity.legacy_pk == 0
       entity.save
     end
   end

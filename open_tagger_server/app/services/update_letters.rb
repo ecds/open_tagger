@@ -17,15 +17,93 @@ class UpdateLetters
       'works_of_art'
     ]
     @letters_dir = 'letters'
+    @updated_letters_dir = 'updated_letters'
     @letters = Dir["#{@letters_dir}/*.xml"]
+    @updated_letters = Dir["#{@updated_letters_dir}/*.xml"]
     @missing_entities = []
     @missing_letters = []
+  end
+
+# @updated_letters.each do |file_name|
+#   doc = File.open(file_name) { |f| Nokogiri::XML(f) }
+#   EntityType.all.each do |type|
+#     doc.xpath("//#{type.label}").each do |tag|
+#       if tag['class'] && tag['class'].include?('flagged')
+#         p tag['class']
+#       end
+#     end
+#   end
+# end; nil
+
+# @updated_letters.each do |file_name|
+#   doc = File.open(file_name) { |f| Nokogiri::XML(f) }
+#   doc.xpath("//directing").each do |tag|
+#     p "#{tag.to_s} : #{file_name}"
+#   end
+# end; nil
+
+# no_id = []
+# @updated_letters.each do |file_name|
+#   # letter_id = _get_id(file_name)
+#   # letter = _get_letter(letter_id)
+#   # next if letter.nil?
+# doc = File.open(file_name) { |f| Nokogiri::XML(f) }
+# EntityType.all.each do |type|
+#   next if doc.xpath("//#{type.label}").empty?
+#   doc.xpath("//#{type.label}").each do |tag|
+#     next if tag['profile_id'].present?
+#     no_id.push(file_name)
+#   end
+# end
+
+  def flag_missing_ids
+    @updated_letters.each do |file_name|
+      letter_id = _get_id(file_name)
+      letter = _get_letter(letter_id)
+      next if letter.nil?
+      doc = File.open(file_name) { |f| Nokogiri::XML(f) }
+      EntityType.all.each do |type|
+        next if doc.xpath("//#{type.label}").empty?
+        doc.xpath("//#{type.label}").each do |tag|
+          next if tag['profile_id'].present?
+          tag['class'] = 'flagged'
+          p file_name
+        end
+      end
+      if letter.present?
+        letter.content = doc.to_xml
+        letter.save
+        File.open("#{@updated_letters_dir}/#{file_name.split('/').last}", 'w') { |f| f.write(doc.to_xml) }
+      end
+    end
+  end
+
+  def flag_letters
+    @updated_letters.each do |file_name|
+      letter_id = _get_id(file_name)
+      letter = _get_letter(letter_id)
+      doc = File.open(file_name) { |f| Nokogiri::XML(f) }
+      EntityType.all.each do |type|
+        next if doc.xpath("//#{type.label}").empty?
+        doc.xpath("//#{type.label}").each do |tag|
+          if tag['class'] && tag['class'].include?('flagged')
+            letter.flagged = true
+            letter.save
+          end
+        end
+      end
+    end
   end
 
   def update
     @letters.each do |file_name|
       letter_id = _get_id(file_name)
       letter = _get_letter(letter_id)
+      p "#{letter_id} : #{letter.nil?}"
+      next if letter.nil?
+      p "#{letter_id} : #{letter.content.present?}"
+      next if letter.content.present?
+      p "Updating #{letter_id}"
       doc = File.open(file_name) { |f| Nokogiri::XML(f) }
 
       # Update code
@@ -39,7 +117,7 @@ class UpdateLetters
         letter.save
       end
 
-      File.open("updated_letters/#{file_name.split('/').last}", 'w') { |f| f.write(doc.to_xml) }
+      File.open("#{@updated_letters_dir}/#{file_name.split('/').last}", 'w') { |f| f.write(doc.to_xml) }
     end
     File.open('missingEntities.json', 'w') do |f|
       f.write(@missing_entities.to_json)
@@ -60,10 +138,10 @@ class UpdateLetters
     end
 
     def _update_ids(doc, letter, id, file_name)
-      @tags.each do |type|
-        next if doc.xpath("//#{type}").empty?
-        doc.xpath("//#{type}").each do |tag|
-          entity = Entity.find_by(legacy_pk: tag['profile_id'].to_i, entity_type: EntityType.find_by(label: type))
+      EntityType.all.each do |type|
+        next if doc.xpath("//#{type.label}").empty?
+        doc.xpath("//#{type.label}").each do |tag|
+          entity = Entity.find_by(legacy_pk: tag['profile_id'].to_i, entity_type: type)
           if entity.nil? && type != 'directing'
             @missing_entities.append(
               letter_legacy_id: id,
@@ -83,7 +161,7 @@ class UpdateLetters
             if letter.nil?
               @missing_letters.append(doc.xpath('//letter//metadata//code').first.content)
             else
-              letter.entities << entity
+              letter.entities_mentioned << entity
             end
           end
         end

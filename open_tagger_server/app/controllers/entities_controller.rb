@@ -1,5 +1,5 @@
 class EntitiesController < ApplicationController
-  before_action :set_entity, only: [:show] #, :edit, :update, :destroy]
+  before_action :set_entity, only: [:show, :update] #, :edit, :update, :destroy]
 
   # GET /entities
   def index
@@ -79,7 +79,9 @@ class EntitiesController < ApplicationController
                 :suggestion,
                 :entity_type,
                 :'entity-type',
-                :properties
+                :properties,
+                :letters,
+                :flagged
               ]
         )
     end

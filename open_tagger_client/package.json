@@ -34,6 +34,7 @@
     "ember-cli-htmlbars": "^3.0.0",
     "ember-cli-htmlbars-inline-precompile": "^1.0.0",
     "ember-cli-inject-live-reload": "^1.8.2",
+    "ember-cli-moment-shim": "^3.7.1",
     "ember-cli-qunit": "^4.3.2",
     "ember-cli-sass": "^8.0.1",
     "ember-cli-sri": "^2.1.0",
@@ -51,17 +52,21 @@
     "ember-load-initializers": "^1.1.0",
     "ember-maybe-import-regenerator": "^0.1.6",
     "ember-pell": "^1.4.1",
+    "ember-pikaday": "^2.4.0",
     "ember-power-select-with-create": "^0.6.1",
     "ember-resolver": "^5.0.1",
     "ember-responsive": "^3.0.0",
     "ember-source": "https://s3.amazonaws.com/builds.emberjs.com/canary/shas/bc505f596c69d585d3f5b65dc50df6d802460bdb.tgz",
     "ember-truth-helpers": "^2.1.0",
-    "ember-uikit": "^0.7.1",
+    "ember-uikit": "^0.8.2",
     "eslint-plugin-ember": "^5.0.0",
     "loader.js": "^4.2.3",
     "sass": "^1.14.0"
   },
   "engines": {
     "node": "6.* || >= 8.*"
+  },
+  "dependencies": {
+    "@tarekraafat/autocomplete.js": "^7.0.0"
   }
 }

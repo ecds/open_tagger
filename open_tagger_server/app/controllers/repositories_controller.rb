@@ -5,7 +5,7 @@ class RepositoriesController < ApplicationController
 
   # GET /repositories
   def index
-    @repositories = Repository.all
+    @repositories = Repository._public
 
     render json: @repositories
   end

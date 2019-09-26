@@ -1,6 +1,6 @@
-{{#unless clicked}}
-    <div class='uk-flex uk-flex-center uk-text-center'>
-        <h1 class="uk-heading-hero uk-text-muted uk-text-uppercase">paste letter here</h1>
-    </div>
-{{/unless}}
+{{#if (not clicked)}}
+  <div class="uk-flex uk-flex-center uk-text-center">
+    <h1 class="uk-heading-hero uk-text-muted uk-text-uppercase">paste letter here</h1>
+  </div>
+{{/if}}
 {{yield}}

@@ -34,13 +34,29 @@
     </div>
   </div>
 {{/if}}
+{{#if this.editTag.isRunning}}
+  <div class="task-running">
+    <div class="uk-position-center uk-text-large">
+      Fetching Tag Information
+    </div>
+  </div>
+{{/if}}
+{{#if this.search.isRunning}}
+  <div class="task-running">
+    <div class="uk-position-center uk-text-large">
+      Searching
+    </div>
+  </div>
+{{/if}}
+
+<h1>{{model.letter.formatted_date}} - {{model.letter.recipient_list}}</h1>
 
 <div class="uk-child-width-1-2" uk-grid>
   {{#if model.letter.content}}
     <section class="">
       {{!-- If text selected --}}
       {{#if selectedText}}
-        <form class="uk-form-stacked">
+        <section class="uk-form-stacked">
           {{#if (not this.tagToEdit)}}
             <legend class="uk-legend uk-margin">Tag Entity</legend>
             <section>
@@ -71,7 +87,7 @@
                       (eq entityType type.label)
                       (eq selectedType.label type.label)
                       }}>
-                      {{type.label}}
+                      {{type.pretty_label}}
                     </option>
                   {{/each}}
                 </select>
@@ -83,24 +99,24 @@
           {{!--  Type Selected  --}}
           {{#if (and (and (and this.selectedType (not this.entitySelected)) (not this.newEntity)) (not this.tagToEdit))}}
 
-            <section class="uk-margin">
+            <form {{action "searchOnEnter" on="submit"}} class="uk-margin">
               <label class="uk-form-label uk-text-large" for="entity-search">
                 Search
               </label>
               <section class="uk-form-controls" uk-grid>
                 <section class="uk-width-2-3">
-                  <form class="uk-search uk-search-default">
+                  <section class="uk-search uk-search-default">
                     <span uk-search-icon></span>
-                    {{input class="uk-search-input" id="entity-search" type="search" value=this.queryText onkeydown=(action (mut this.queryText) value="target.value")}}
-                  </form>
+                    {{input class="uk-search-input" id="entity-search" type="search" value=this.queryText onkeydown=(action (mut this.queryText) (action "searchOnEnter") value="target.value")}}
+                  </section>
                 </section>
                 <section class="uk-width-1-3">
-                  <UkButton @color="primary" @on-click={{action "getLiteral"}}>
+                  <UkButton @color="primary" @on-click={{perform this.search}}>
                     Search
                   </UkButton>
                 </section>
               </section>
-            </section>
+            </form>
 
 
             {{!-- {{#if (is-empty entityToEdit.id)}} --}}
@@ -114,10 +130,26 @@
               </UkButton>
             </section>
             <section class="uk-margin">
-              <SearchResults @matches={{this.matches}} @results={{this.results}}
-                @addExistingLiteral={{this.addExistingLiteral}} @addLiteral={{this.addLiteral}}></SearchResults>
+              <SearchResults @results={{this.results}}
+                @addExistingEntity={{this.tagExistingEntity}}></SearchResults>
             </section>
           {{else if this.tagToEdit}}
+            <table class="uk-table">
+              <tbody>
+                <tr>
+                  <td class="uk-table-shrink uk-text-bold">Label</td>
+                  <td class="uk-table-expand">{{{tagToEdit.label}}} {{if (eq tagToEdit.type_label 'Person') (concat '(' tagToEdit.properties.life-dates ')')}}</td>
+                </tr>
+                <tr>
+                  <td class="uk-table-shrink uk-text-bold">Type</td>
+                  <td class="uk-table-expand">{{tagToEdit.type_label}}</td>
+                </tr>
+                <tr>
+                  <td class="uk-table-shrink uk-text-bold">Description</td>
+                  <td class="uk-table-expand">{{tagToEdit.properties.description}}</td>
+                </tr>
+              </tbody>
+            </table>
             <section class="uk-form-controls">
               <UkButton @color="secondary" @on-click={{action "removeTag"}}>
                 Remove Tag
@@ -129,7 +161,7 @@
           {{else if newEntity}}
             {{pell-editor
               class="pell"
-              value=newEntity.suggestion
+              value=newEntity.label
               pellOptions=editorOptions
               onChange=(action (mut newEntity.suggestion))
             }}
@@ -138,20 +170,37 @@
             </UkButton>
           {{else}}
           {{/if}}
-        </form>
+        </section>
       {{else}}
         <h1 class="uk-heading-hero uk-text-muted uk-text-uppercase uk-text-center">
           Select text to tag
         </h1>
+        <h2>Tagged in this Letter</h2>
+        {{!-- <section>{{model.letter.entities_mentioned_list}}</section> --}}
+        <dl class="uk-description-list uk-description-list-divider">
+          {{#each model.letter.entities_mentioned as |entity|}}
+            <dt class={{if entity.flagged "flagged"}}>
+              {{{if entity.label entity.label "Loading...."}}} {{if (eq entity.type_label 'Person') (concat '(' entity.properties.life-dates ')')}}
+            </dt>
+            <dd class={{if entity.flagged "flagged"}}>
+              {{{entity.properties.description}}}
+            </dd>
+          {{/each}}
+        </dl>
       {{/if}}
     </section>
-    <LetterWrapper>
+    <LetterWrapper @entityTypes={{model.entityTypes}}>
       <div class="uk-panel uk-panel-scrollable letter-container
           {{if selectedText "no-select"}}">
         <LettersView @letter={{model.letter}} @select={{action "setSelected"}}
-          @editTag={{perform editTag}}>
+          @editTag={{perform editTag}} @contenteditable={{this.editLetter}}>
         </LettersView>
       </div>
+      {{#if this.editLetter}}
+        <UkButton @color="primary" @on-click={{perform this.updateLetter}}>Save Letter</UkButton>
+      {{else}}
+        <UkButton @color="secondary" @on-click={{action (toggle "editLetter" this)}}>Edit Letter</UkButton>
+      {{/if}}
     </LetterWrapper>
   {{else}}
     <div class="uk-width-1-1">
