@@ -143,7 +143,7 @@ pre {
 }
 
 .works_of_art  {
-  works_of_art {
+  works-of-art {
     background: $tag-background;
     color: $tag-color;
     cursor: pointer;
@@ -268,4 +268,8 @@ tmp {
   position: absolute;
   top: -100px;
   left: -100px;
+}
+
+.contextual-data-table {
+  width: 66%;
 }

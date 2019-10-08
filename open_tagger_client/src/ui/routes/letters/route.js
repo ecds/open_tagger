@@ -2,7 +2,7 @@ import Route from '@ember/routing/route';
 
 export default class LettersRoute extends Route {
   model() {
-    return this.store.query('letter', {}).then(results => {
+    return this.store.query('letter', { items: 100 }).then(results => {
       return {
         letters: results,
         meta: results.meta

@@ -17,19 +17,16 @@ export default class LettersController extends Controller {
   currentPage = 1;
 
   fetchData() {
-    this.get('store').query('letter', { page: this.currentPage }).then(letters => {
+    this.get('store').query('letter', { page: this.currentPage, recipients: this.recipientFilter }).then(letters => {
       this.set('letters', letters);
       this.setNextPages();
     });
-    // this.get('store').findAll('letter-date').then(dates => {
-    //   this.set('letterDates', dates)
-    // })
   }
 
   nextPages = Array.from({length:5},(v,k)=>k+parseInt(this.currentPage + 1));
 
   setNextPages() {
-    this.set('nextPages', Array.from({length:5},(v,k)=>k+parseInt(this.currentPage + 1)));
+    this.set('nextPages', Array.from({length:5},(v,k)=>k+parseInt(this.currentPage + 1)).filter(page => page < this.get('lastPage')));
   }
 
   @computed('meta')
@@ -46,16 +43,21 @@ export default class LettersController extends Controller {
       end: this.endDate
     }).then(letters => {
       this.set('letters', letters);
+      this.set('meta', letters.meta);
+      this.setNextPages();
     });
   }
 
   @action
   clearRecipientsFilter() {
+    document.getElementById('autoComplete').value = null
     this.get('store').query('letter', {
       start: this.startDate,
       end: this.endDate
     }).then(letters => {
       this.set('letters', letters);
+      this.set('meta', letters.meta);
+      this.setNextPages();
     });
   }
 
@@ -105,7 +107,9 @@ export default class LettersController extends Controller {
       end: this.endDate
     }).then(letters => {
       this.set('letters', letters);
-    })
+      this.set('meta', letters.meta);
+      this.setNextPages();
+})
   }
 
   @action

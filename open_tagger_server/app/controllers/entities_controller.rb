@@ -4,6 +4,9 @@ class EntitiesController < ApplicationController
   # GET /entities
   def index
     entities = Entity.where(nil)
+    if params[:entity_type].present?
+      params[:entity_type] = params[:entity_type].underscore
+    end
     if params.empty?
       entities = Entity.all
     elsif params[:query].present? && params[:type].present?

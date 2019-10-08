@@ -1,10 +1,8 @@
 import DS from 'ember-data';
-const {
-  Model,
-  attr,
-  hasMany,
-  belongsTo
-} = DS;
+import { computed } from '@ember/object';
+import { htmlSafe } from '@ember/string';
+
+const { Model, attr, hasMany, belongsTo } = DS;
 
 export default Model.extend({
   label: attr('string'),
@@ -15,5 +13,9 @@ export default Model.extend({
   letters: hasMany('letter'),
   properties: attr(),
   type_label: attr('string'),
-  flagged: attr('boolean')
+  flagged: attr('boolean'),
+  
+  safeLabel: computed('label', function() {
+    return new htmlSafe(this.get('label'));
+  })
 });

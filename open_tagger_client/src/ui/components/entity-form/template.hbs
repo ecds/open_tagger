@@ -1,31 +1,65 @@
-{{#if (eq entity.entity_type 'person')}}
-<label class="uk-form-label" for="first">First Name</label>
-<div class="uk-form-controls">
-  {{input class='uk-input' id='first' type='text' value=@entity.first}}
+<div class="uk-margin">
+  <label class="uk-form-label">Label</label>
+  {{pell-editor
+      class="pell"
+      value=@entity.label
+      pellOptions=editorOptions
+      onChange=(action (mut @entity.label))
+    }}
+  {{!-- {{input value=(mut @entity.label) class="uk-input"}} --}}
 </div>
-
-<label class="uk-form-label" for="last">Last Name</label>
-<div class="uk-form-controls">
-  {{input class='uk-input' id='last' type='text' value=@entity.last}}
-</div>
-
-<label class="uk-form-label" for="description">Description</label>
-<div class="uk-form-controls">
-  {{textarea class='uk-textarea' id='description' value=@entity.notes}}
-</div>
-{{/if}}
-
-{{#if (eq property_type 'array')}}
-  {{#power-select-with-create
-  class='uk-select'
-  search=search
-  options=searchResults
-  selected=''
-  placeholder=(concat 'Select or create ' property.label)
-  onchange=(action 'associateRepo')
-  oncreate=(action 'create' property) as |repo selected|
-  }}
-  {{repo.label}}
-  {{/power-select-with-create}}
-{{/if}}
-{{yield}}
+{{#each-in @entity.properties as |property value|}}
+  {{#if (isinstanceof value "Array")}}
+    <div class="uk-margin">
+      <label class="uk-form-label">{{titleize property}}</label>
+      {{#each value as |l index|}}
+        {{input value=l key-up=(action "updateArrayItem" @entity.properties property index) class="uk-input" placeholder=(concat 'Add to ' (titleize property))}}
+      {{/each}}
+      <UkButton @on-click={{perform addToArrayProp property}}>Add {{titleize property}}</UkButton>
+    </div>
+  {{else if (isinstanceof value "Object")}}
+    {{#each-in value as |p v|}}
+      {{#if (isinstanceof v "Array")}}
+        <label class="uk-form-label">{{titleize p}}</label>
+        {{#each v as |k|}}
+          <div class="uk-margin">
+            {{#if (isinstanceof k "Object")}}
+              {{#each-in k as |a b|}}
+                <label class="uk-form-label">{{titleize a}}</label>
+                {{input value=(mut (get k a)) class="uk-input"}}
+              {{/each-in}}
+            {{!-- {{else}}
+            !!!!!
+              {{input value=k class="uk-input"}} --}}
+            {{/if}}
+          </div>
+        {{/each}}
+      <UkButton @on-click={{action "addToObjectProp" property v p}}>Add {{titleize p}}</UkButton>
+        {{!-- {{else}}
+        <div class="uk-margin">
+          <label class="uk-form-label">
+            {{titleize p}}!!!!
+          </label>
+          {{input value=v class="uk-input"}}
+        </div> --}}
+      {{/if}}
+    {{/each-in}}
+  {{else}}
+    <div class="uk-margin">
+      <label class="uk-form-label">
+        {{titleize property}}
+      </label>
+      {{#if (or (eq property 'description') (eq property 'profile'))}}
+        {{pell-editor
+          class="pell"
+          value=value
+          pellOptions=editorOptions
+          onChange=(action (mut (get @entity.properties property)))
+        }}
+      {{else}}
+        {{input value=(mut (get @entity.properties property)) class="uk-input"}}
+      {{/if}}
+    </div>
+  {{/if}}
+{{/each-in}}
+<UkButton @color="primary" @on-click={{perform @save @entity}}>Save</UkButton>

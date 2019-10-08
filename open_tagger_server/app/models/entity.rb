@@ -80,7 +80,7 @@ class Entity < ApplicationRecord
     end
 
     def remove_div
-      if label.present? && label.start_with('<div>') && label.end_with?('</div>')
+      if label.present? && label.start_with?('<div>') && label.end_with?('</div>')
         lable = label[5..-7]
       end
     end

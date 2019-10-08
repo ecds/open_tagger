@@ -3,12 +3,19 @@
 
         <ul class="uk-navbar-nav">
             <li>
-                {{#link-to 'letters'}}Letters{{/link-to}}
+                {{#link-to "letters"}}Letters{{/link-to}}
             </li>
+            {{#each this.model as |type|}}
+            <li>
+                {{#link-to "entities" type.friendlyLabel}}
+                    {{titleize type.plural}}
+                {{/link-to}}
+            </li>
+            {{/each}}
         </ul>
 
     </div>
 </nav>
-<div class='uk-container uk-container-large uk-margin-xlarge-top'>
+<div class="uk-container uk-container-large uk-margin-xlarge-top">
   {{outlet}}
 </div>

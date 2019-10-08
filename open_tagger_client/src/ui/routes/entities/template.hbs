@@ -1,57 +1,71 @@
 {{outlet}}
-{{#if literalToEdit}}
-              <section class="uk-margin">
-                <label class="uk-form-label uk-text-large">
-                  Entity Label
-                </label>
-                <section class="uk-form-controls">
-                  {{pell-editor
-                    class="pell"
-                    value=entityToEdit.label
-                    onChange=(action (mut entityToEdit.label))
-              pellOptions=editorOptions
-                  }}
-                </section>
-              </section>
-                <section class="uk-margin">
-                <label class="uk-form-label uk-text-large">
-                  Description
-                </label>
-                <section class="uk-form-controls">
-                  {{pell-editor
-                    class="pell"
-                    value=entityToEdit.description
-                    onChange=(action (mut entityToEdit.description))
-              pellOptions=editorOptions
-                  }}
-                </section>
-                <section class="uk-form-controls uk-margin">
-                  {{#if entityToEdit.properties}}
-                    {{#each-in entityToEdit.properties as |key value|}}
-                      <label class="uk-form-label uk-text-large uk-margin">
-                        {{key}}
-                      </label>
-                      <section class="uk-form-controls">
-                        {{pell-editor
-                          class="pell"
-                          value=value
-                          onChange=(action "updateProperty" key)
-                          pellOptions=editorOptions
-                        }}
-                      </section>
-                    {{/each-in}}
-                  {{/if}}
-                </section>
-                <section class="uk-form-controls">
-                  <UkButton @color="primary" @on-click={{perform updateTag}}>
-                    Save
-                  </UkButton>
-                   <UkButton @color="secondary" @on-click={{action "removeTag"}}>
-                    Remove Tag
-                  </UkButton>
-                  <UkButton @color="link" @on-click={{action "reset"}}>
-                    Cancel
-                  </UkButton>
-                </section>
-              </section>
-            {{/if}}
+<form {{action "searchOnEnter" on="submit"}} class="uk-margin">
+    <label class="uk-form-label uk-text-large" for="entity-search">
+      Search
+    </label>
+    <section class="uk-form-controls" uk-grid>
+      <section class="uk-width-2-3">
+        <section class="uk-search uk-search-default">
+          <span uk-search-icon></span>
+          {{input class="uk-search-input" id="entity-search" type="search" value=this.queryText onkeydown=(action (mut this.queryText) (action "searchOnEnter") value="target.value")}}
+        </section>
+      </section>
+      <section class="uk-width-1-3">
+        {{#if this.searchResults}}
+          <UkButton @color="primary" @on-click={{perform this.clearSearch}}>
+            Clear
+          </UkButton>
+        {{else}}
+          <UkButton @color="primary" @on-click={{perform this.search}}>
+            Search
+          </UkButton>
+        {{/if}}
+      </section>
+    </section>
+  </form>
+  <ul class="uk-pagination" uk-margin>
+    <li><UkButton @color="link" @on-click={{action "prevPageRequested"}}><span uk-pagination-previous></span></UkButton></li>
+    <li class="uk-active"><span>{{currentPage}}</span></li>
+    {{#each this.nextPages as |page|}}
+      <li><UkButton @color="link" @on-click={{action "jumpToPage" page}}>{{page}}</UkButton></li>
+    {{/each}}
+    <li class="uk-disabled"><span>...</span></li>
+    <li><UkButton @color="link" @on-click={{action "jumpToPage" this.lastPage}}>{{this.lastPage}}</UkButton></li>
+    <li><UkButton  @color="link" @on-click={{action "nextPageRequested"}}><span uk-pagination-next></span></UkButton></li>
+  </ul>
+{{#if this.saveEntity.isRunning}}
+  <div class="task-running">
+    <div class="uk-position-center uk-text-large">
+      Saving Changes
+    </div>
+  </div>
+{{/if}}
+{{#data-table data=entities classNames="uk-table-striped uk-table uk-table-divider" as |t|}}
+  {{t.column propertyName="safeLabel" class="uk-table-expand" name=(titleize entityType)}}
+  {{#t.column class="uk-table-middle" as |col|}}
+    {{#if col.body}}
+      <button class="uk-button {{if (eq col.rowIndex rowIndexToShowDetail) "uk-button-secondary" "uk-button-primary"}}" data-toggle="button" aria-pressed="false" autocomplete="off" onclick={{action "toggleDetail" col.rowIndex}} >
+        {{#if (eq col.rowIndex rowIndexToShowDetail)}}
+          Discard Changes
+        {{else}}
+          Show Detail
+        {{/if}}
+      </button>
+    {{/if}}
+  {{/t.column}}
+  {{#t.extraRow as |er|}}
+    {{#if (eq er.rowIndex rowIndexToShowDetail)}}
+      <EntityForm @entity={{er.row}} @save={{this.saveEntity}} class="entity-form"></EntityForm>
+    {{/if}}
+  {{/t.extraRow}}
+{{/data-table}}
+  <ul class="uk-pagination" uk-margin>
+    <li><UkButton @color="link" @on-click={{action "prevPageRequested"}}><span uk-pagination-previous></span></UkButton></li>
+    <li class="uk-active"><span>{{currentPage}}</span></li>
+    {{#each this.nextPages as |page|}}
+      <li><UkButton @color="link" @on-click={{action "jumpToPage" page}}>{{page}}</UkButton></li>
+    {{/each}}
+    <li class="uk-disabled"><span>...</span></li>
+    <li><UkButton @color="link" @on-click={{action "jumpToPage" this.lastPage}}>{{this.lastPage}}</UkButton></li>
+    <li><UkButton  @color="link" @on-click={{action "nextPageRequested"}}><span uk-pagination-next></span></UkButton></li>
+  </ul>
