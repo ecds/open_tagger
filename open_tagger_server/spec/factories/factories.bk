@@ -1,0 +1,70 @@
+# frozen_string_literal: true
+
+# spec/factories/users.rb
+FactoryBot.define do
+  factory :letter do
+    content { Faker::Hipster.paragraph(2, true, 4) }
+
+    transient do
+      recipients_count { 2 }
+      mentions_count { 6 }
+    end
+
+    after(:create) do |letter, evaluator|
+      create_list(
+        :entity,
+        evaluator.recipients_count,
+        entity_type: :entity_type, factory: :entity_type, label: 'person'
+        letters: [letter],
+        label: Faker::Movies::Lebowski.character
+      )
+
+      create(
+        :entity,
+        entity_type: :entity_type, factory: :entity_type, label: 'place'
+        label: Faker::Movies::HitchhikersGuideToTheGalaxy.location,
+        places_sent: [letter]
+      )
+
+      create(
+        :entity,
+        entity_type: :entity_type, factory: :entity_type, label: 'place'
+        label: Faker::Movies::HitchhikersGuideToTheGalaxy.location,
+        letters_written_to_place: [letter]
+      )
+
+      create(
+        :entity,
+        entity_type: :entity_type, factory: :entity_type, label: 'place'
+        label: Faker::Movies::HitchhikersGuideToTheGalaxy.location,
+        places_sent: [letter]
+      )
+
+      create(
+        :entity,
+        entity_type: :entity_type, factory: :entity_type, label: 'place'
+        label: Faker::Movies::HitchhikersGuideToTheGalaxy.location,
+        letters_written_to_place: [letter]
+      )
+
+      create_list(
+        :entity,
+        evaluator.mentions_count,
+        entity_type: :entity_type, factory: :entity_type, label: 'organization'
+        label: Faker::Movies::HitchhikersGuideToTheGalaxy.starship,
+        letters: [letter]
+      )
+
+    end
+  end
+end
+
+FactoryBot.define do
+  factory :entity do
+  end
+end
+
+FactoryBot.define do
+  factory :entity_type do
+  end
+end

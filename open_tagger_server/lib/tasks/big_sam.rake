@@ -43,7 +43,7 @@ namespace :big_sam do
         physical_notes: row[:physdes_notes],
         repository_info: row[:repository_information],
         postcard_image: row[:postcard_image],
-        leaves: row[:leves],
+        leaves: row[:leves].to_i,
         sides: row[:sides],
         postmark: row[:postmark_actual],
         notes: row[:dditional],
@@ -64,37 +64,48 @@ namespace :big_sam do
       end
 
       if row[:reg_place_written]
-        from = get_entity(row[:reg_place_written], 'place')
         begin
-          letter.places_written << from
-        rescue ActiveRecord::RecordInvalid
+        from = get_entity(row[:reg_place_written], 'place')
+          unless letter.places_written.include?(from)
+            letter.places_written << from
+          end
+        rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
           #
         end
-        if row[:addressed_from_actual] && row[:addressed_from_actual] != from.label
-          from.alternate_spellings << AlternateSpelling.find_or_create_by(label: row[:addressed_from_actual])
-        end
+        # if row[:addressed_from_actual] && row[:addressed_from_actual] != from.label
+        #   from.alternate_spellings << AlternateSpelling.find_or_create_by(label: row[:addressed_from_actual])
+        # end
       end
 
       if row[:reg_place_written_city]
         begin
-          letter.places_written << get_entity(row[:reg_place_written_city], 'place')
-        rescue ActiveRecord::RecordInvalid
+          place = get_entity(row[:reg_place_written_city], 'place')
+          unless letter.places_written.include?(place)
+            letter.places_written << place
+          end
+        rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
           #
         end
       end
 
       if row[:reg_place_written_country]
         begin
-          letter.places_written << get_entity(row[:reg_place_written_country], 'place')
-        rescue ActiveRecord::RecordInvalid
+          place = get_entity(row[:reg_place_written_country], 'place')
+          unless letter.places_written.include?(place)
+            letter.places_written << place
+          end
+        rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
           #
         end
       end
 
       if row[:reg_place_written_second_city]
         begin
-          letter.places_written << get_entity(row[:reg_place_written_second_city], 'place')
-        rescue ActiveRecord::RecordInvalid
+          place = get_entity(row[:reg_place_written_second_city], 'place')
+          unless letter.places_written.include?(place)
+            letter.places_written << place
+          end
+        rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
           #
         end
       end
@@ -102,45 +113,59 @@ namespace :big_sam do
       if row[:reg_recipient]
         row[:reg_recipient].split(';').each do |recipient|
           p recipient.downcase.strip.gsub(/[\[!@%&?"\]]/, '')
-          entity = get_entity(row[:reg_recipient], 'person')
           begin
-            letter.recipients << entity
-          rescue ActiveRecord::RecordInvalid
+            entity = get_entity(row[:reg_recipient], 'person')
+            unless letter.recipients.include?(entity)
+              letter.recipients << entity
+            end
+          rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
             #
           end
-          if row[:addressed_to_actual]
-            parts = row[:addressed_to_actual].split(',')
-            person = parts.shift
-            if person != entity.label
-              entity.alternate_spellings << AlternateSpelling.find_or_create_by(label: person)
-            end
-          end
+          # if row[:addressed_to_actual]
+          #   parts = row[:addressed_to_actual].split(',')
+          #   person = parts.shift
+          #   if person != entity.label
+          #     entity.alternate_spellings << AlternateSpelling.find_or_create_by(label: person)
+          #   end
+          # end
         end
 
         if row[:reg_placesent_sent]
+          begin
           destination = get_entity(row[:reg_placesent_sent], 'place')
-          letter.places_sent << destination
-          if row[:reg_recipient]
-            parts = row[:addressed_to_actual].split(',')
-            person = parts.shift
-            if parts.first
-              destination.alternate_spellings << AlternateSpelling.find_or_create_by(label: person)
+            unless letter.places_sent.include?(destination)
+              letter.places_sent << destination
             end
+          rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
+            #
           end
+          # if row[:reg_recipient]
+          #   parts = row[:addressed_to_actual].split(',')
+          #   person = parts.shift
+          #   if parts.first
+          #     destination.alternate_spellings << AlternateSpelling.find_or_create_by(label: person)
+          #   end
+          # end
         end
 
         if row[:reg_placesent_city]
           begin
-            letter.places_sent << get_entity(row[:reg_placesent_city], 'place')
-          rescue ActiveRecord::RecordInvalid
+            entity = get_entity(row[:reg_placesent_city], 'place')
+            unless letter.places_sent.include?(entity)
+              letter.places_sent << entity
+            end
+          rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
             #
           end
         end
 
         if row[:reg_placesent_country]
           begin
-            letter.places_sent << get_entity(row[:reg_placesent_country], 'place')
-          rescue ActiveRecord::RecordInvalid
+            entity = get_entity(row[:reg_placesent_country], 'place')
+            unless letter.places_sent.include?(entity)
+              letter.places_sent << entity
+            end
+          rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
             #
           end
         end
@@ -151,27 +176,47 @@ namespace :big_sam do
         repo.format = row[:first_format]
         repo.american = row[:euro_or_am] == 'American' ? true : false
         repo.public = row[:first_public] == 'public' ? true : false
-        if row[:first_collection]
-          collection = Collection.find_or_create_by(label: row[:first_collection])
-          repo.collections << collection
-          letter.collections << collection
+        begin
+          if row[:first_collection]
+            collection = Collection.find_or_create_by(label: row[:first_collection])
+            unless repo.collections.include?(collection)
+              repo.collections << collection
+            end
+            unless letter.collections.include?(collection)
+              letter.collections << collection
+            end
+          end
+          repo.save
+          unless letter.repositories.include?(repo)
+            letter.repositories << repo
+          end
+        rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
+          #
         end
-        repo.save
-        letter.repositories << repo
-      end
+    end
 
       if row[:second_repository]
         repo = Repository.find_or_create_by(label: row[:second_repository])
         repo.format = row[:second_format]
         repo.public = row[:second_public] == 'Public' ? true : false
-        if row[:second_collection]
-          collection = Collection.find_or_create_by(label: row[:second_collection])
-          repo.collections << collection
-          letter.collections << collection
+        begin
+          if row[:second_collection]
+            collection = Collection.find_or_create_by(label: row[:second_collection])
+            unless repo.collections.include?(collection)
+              repo.collections << collection
+            end
+            unless letter.collections.include?(collection)
+              letter.collections << collection
+            end
+          end
+          repo.save
+          unless letter.repositories.include?(repo)
+            letter.repositories << repo
+          end
+        rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
+          #
         end
-        repo.save
-        letter.repositories << repo
-      end
+    end
 
       if row[:placeprevpubl]
         letter.letter_publisher = LetterPublisher.find_or_create_by(label: row[:placeprevpubl])
@@ -179,8 +224,14 @@ namespace :big_sam do
 
       if row[:sender]
         row[:sender].split(';').each do |sender|
-          entity = get_entity(sender, 'person')
-          letter.senders << entity
+          begin
+            entity = get_entity(sender, 'person')
+            unless letter.senders.include?(entity)
+              letter.senders << entity
+            end
+          rescue ActiveRecord::RecordInvalid, Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound
+            #
+          end
         end
       end
 
@@ -215,3 +266,10 @@ namespace :big_sam do
           )
   end
 end
+
+
+# rows.each do |r|
+#   l = Letter.find_by(legacy_pk: r[:id].to_i)
+#   l.leaves = r[:leaves].to_i
+#   l.save
+# end

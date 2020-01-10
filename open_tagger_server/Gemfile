@@ -64,12 +64,15 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 # Linked data stuff
 gem 'json-ld'
 
+gem 'acts-as-taggable-on', '~> 6.0'
+
 # Pagination
 gem 'pagy'
 gem 'pager_api'
 # gem 'kaminari'
 # gem 'open-uri'
 gem 'nokogiri'
+gem 'dalli'
 
 # For normalizing addresses
 gem 'nominatim'
@@ -87,3 +90,5 @@ gem 'google-api-client'
 
 # For sting comparisions
 gem 'fuzzy-string-match'
+gem 'elasticsearch-model'
+gem 'elasticsearch-rails'

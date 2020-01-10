@@ -17,5 +17,17 @@ export default Model.extend({
   
   safeLabel: computed('label', function() {
     return new htmlSafe(this.get('label'));
+  }),
+
+  altSpellings: computed('properties', function() {
+    if (!this.get('properties')) {
+      return null;
+    }
+    let alt = this.get('properties')['alternate-names-spellings']
+    if (alt && alt.length > 0) {
+      return alt.join(',');
+    } else {
+      return null;
+    }
   })
 });

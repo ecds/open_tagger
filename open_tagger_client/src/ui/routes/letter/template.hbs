@@ -134,22 +134,54 @@
                 @addExistingEntity={{this.tagExistingEntity}}></SearchResults>
             </section>
           {{else if this.tagToEdit}}
-            <table class="uk-table">
-              <tbody>
-                <tr>
-                  <td class="uk-table-shrink uk-text-bold">Label</td>
-                  <td class="uk-table-expand">{{{tagToEdit.label}}} {{if (eq tagToEdit.type_label 'Person') (concat '(' tagToEdit.properties.life-dates ')')}}</td>
-                </tr>
-                <tr>
-                  <td class="uk-table-shrink uk-text-bold">Type</td>
-                  <td class="uk-table-expand">{{tagToEdit.type_label}}</td>
-                </tr>
-                <tr>
-                  <td class="uk-table-shrink uk-text-bold">Description</td>
-                  <td class="uk-table-expand">{{tagToEdit.properties.description}}</td>
-                </tr>
-              </tbody>
-            </table>
+            {{#if this.tagToEdit.flagged}}
+              <fieldset class="uk-fieldset">
+                <legend class="uk-legend">
+                  Label
+                </legend>
+                <div class="uk-margin">
+                  {{pell-editor
+                    class="pell"
+                    value=this.tagToEdit.label
+                    pellOptions=editorOptions
+                    onChange=(action (mut this.tagToEdit.label))
+                  }}
+                </div>
+                <legend class="uk-legend">
+                  Description
+                </legend>
+                <div class="uk-margin">
+                  {{pell-editor
+                    class="pell"
+                    value=tagToEdit.properties.description
+                    pellOptions=editorOptions
+                    onChange=(action (mut tagToEdit.properties.description))
+                  }}
+                </div>
+                <div class="uk-margin">
+                  <UkButton @color="primary" @on-click={{perform unFlag tagToEdit}}>
+                    Approve
+                  </UkButton>
+                </div>
+              </fieldset>
+            {{else}}
+              <table class="uk-table">
+                <tbody>
+                  <tr>
+                    <td class="uk-table-shrink uk-text-bold">Label</td>
+                    <td class="uk-table-expand">{{{tagToEdit.label}}} {{if (eq tagToEdit.type_label 'Person') (concat '(' tagToEdit.properties.life-dates ')')}}</td>
+                  </tr>
+                  <tr>
+                    <td class="uk-table-shrink uk-text-bold">Type</td>
+                    <td class="uk-table-expand">{{tagToEdit.type_label}}</td>
+                  </tr>
+                  <tr>
+                    <td class="uk-table-shrink uk-text-bold">Description</td>
+                    <td class="uk-table-expand">{{tagToEdit.properties.description}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            {{/if}}
             <section class="uk-form-controls">
               <UkButton @color="secondary" @on-click={{action "removeTag"}}>
                 Remove Tag
@@ -159,15 +191,34 @@
               </UkButton>
             </section>
           {{else if newEntity}}
-            {{pell-editor
-              class="pell"
-              value=newEntity.label
-              pellOptions=editorOptions
-              onChange=(action (mut newEntity.suggestion))
-            }}
-            <UkButton @color="primary" @on-click={{perform saveSuggestion}}>
-              Save
-            </UkButton>
+            <fieldset class="uk-fieldset">
+              <legend class="uk-legend">Label</legend>
+              <div class="uk-margin">
+                {{pell-editor
+                  class="pell"
+                  value=newEntity.label
+                  pellOptions=editorOptions
+                  onChange=(action (mut newEntity.label))
+                }}
+              </div>
+
+              <legend class="uk-legend">Description</legend>
+              <div class="uk-margin">
+                {{pell-editor
+                  class="pell"
+                  value=newEntity.properties.description
+                  pellOptions=editorOptions
+                  onChange=(action (mut newEntity.properties.description))
+                }}
+              </div>
+
+              <div class="uk-margin">
+                <UkButton @color="primary" @on-click={{perform saveSuggestion}}>
+                  Save
+                </UkButton>
+              </div>
+              
+            </fieldset>
           {{else}}
           {{/if}}
         </section>

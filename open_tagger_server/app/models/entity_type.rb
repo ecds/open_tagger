@@ -8,4 +8,8 @@ class EntityType < ApplicationRecord
   def pretty_label
     label.titleize
   end
+
+  def plural
+    label.pluralize.titleize
+  end
 end

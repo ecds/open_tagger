@@ -26,5 +26,6 @@ class LetterSerializer < ActiveModel::Serializer
   :recipients,
   :entities_mentioned_list,
   :letter_publisher,
-  :formatted_date
+  :formatted_date,
+  :tag_list
 end

@@ -14,6 +14,8 @@ Router.map(function() {
   });
   this.route('entities', {
     path: '/entities/:entity_type'
+  }, function() {
+    this.route('entity');
   });
 });
 

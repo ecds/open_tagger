@@ -87,7 +87,7 @@ pre {
   }
 }
 
-.public_events {
+.public_event {
   public_events {
     background: $tag-background;
     color: $tag-color;
@@ -142,8 +142,8 @@ pre {
   }
 }
 
-.works_of_art  {
-  works-of-art {
+.work_of_art  {
+  work-of-art {
     background: $tag-background;
     color: $tag-color;
     cursor: pointer;
@@ -272,4 +272,11 @@ tmp {
 
 .contextual-data-table {
   width: 66%;
+}
+
+.uk-checkbox {
+  border-style: solid;
+  border-width: 1px;
+  border-color: gray;
+  border-radius: 20%;
 }

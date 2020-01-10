@@ -11,8 +11,7 @@ export default class LettersLetterRoute extends Route {
     // return this.store.findAll('entity');
     return RSVP.hash({
       letter: this.store.findRecord('letter', params.letter_id),
-      entityTypes: this.store.findAll('entity_type'),
-      repos: this.store.findAll('repository')
+      entityTypes: this.store.findAll('entity_type')
     });
   }
 

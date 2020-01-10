@@ -11,7 +11,6 @@ class UpdateLetters
       'publication',
       'public_events',
       'reading',
-      # 'recipient',
       'translating',
       'writing',
       'works_of_art'
@@ -107,7 +106,7 @@ class UpdateLetters
       doc = File.open(file_name) { |f| Nokogiri::XML(f) }
 
       # Update code
-      doc.xpath('//letter//metadata//code').first.content = letter_id.to_s
+      # doc.xpath('//letter//metadata//code').first.content = letter_id.to_s
 
       # Update all the entity tags.
       updated_doc = _update_ids(doc, letter, letter_id, file_name)

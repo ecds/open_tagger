@@ -1,2 +1,2 @@
-module LiteralsHelper
+module LitteralsHelper
 end

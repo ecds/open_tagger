@@ -41,7 +41,8 @@ export default class LettersLetterController extends Controller {
       suggestion: this.selectedText,
       entityType: this.selectedType,
       flagged: true,
-      label: this.selectedText
+      label: this.selectedText,
+      properties: {}
     });
     this.set('newEntity', newEntity);
     yield waitForProperty(newEntity, 'id', v => v != null);
@@ -53,6 +54,16 @@ export default class LettersLetterController extends Controller {
     yield this.newEntity.save();
     this.set('newEntity', null);
     this.clear();
+  })
+
+  unFlag = task(function * (entity) {
+    entity.setProperties({
+      flagged: false
+    });
+    yield entity.save();
+    document.querySelector(`[profile_id="${entity.id}"]`).classList.remove('flag')
+    yield this.get('updateLetter').perform();
+    this.set('tagToEdit', null);
   })
 
   scrubLetter() {
@@ -157,8 +168,8 @@ export default class LettersLetterController extends Controller {
 
   search = task(function * () {
     let results = yield this.store.query('entity', {
-      query: this.queryText,
-      type: this.selectedType.get('label')
+      search: this.queryText,
+      entity_type: this.selectedType.get('label')
     });
     if (results.length > 0) {
       this.set('results', results);

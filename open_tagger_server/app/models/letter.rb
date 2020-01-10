@@ -5,6 +5,10 @@
 #
 class Letter < ApplicationRecord
   include PgSearch::Model
+  include Elasticsearch::Model
+  include Elasticsearch::Model::Callbacks
+
+  acts_as_taggable
 
   before_save :flag_letter
 
@@ -36,6 +40,9 @@ class Letter < ApplicationRecord
   belongs_to :language, optional: true
   # belongs_to :place_entity_sent, optional: true, class_name: 'Entity'
 
+  index_name Rails.application.class.parent_name.underscore
+  document_type self.name.downcase
+  
   scope :between, lambda { |start, _end|
     where('date >= ? AND date <= ?', start, _end)
   }
@@ -58,7 +65,7 @@ class Letter < ApplicationRecord
         public: true
       }
     )
-    .where('date BETWEEN ? AND ?', DateTime.new(1957), DateTime.new(1965, 12).at_end_of_month)
+      .where('letters.date BETWEEN ? AND ?', DateTime.new(1957), DateTime.new(1965, 12).at_end_of_month)
   }
 
   scope :flagged, -> {
@@ -82,7 +89,11 @@ class Letter < ApplicationRecord
                   }
 
   def formatted_date
-    date.strftime("%d %B %Y")
+    if date
+      date.strftime("%d %B %Y")
+    else
+      none
+    end
   end
 
   def recipient_list
@@ -128,5 +139,13 @@ class Letter < ApplicationRecord
           end
         end
       end
+    end
+
+    def public_letter_start
+      DateTime.new(1957)
+    end
+
+    def public_letter_end
+      DateTime.new(1965, 12).at_end_of_month
     end
 end

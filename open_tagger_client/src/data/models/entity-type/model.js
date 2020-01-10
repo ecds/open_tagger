@@ -12,7 +12,5 @@ export default Model.extend({
     return this.label.toLocaleLowerCase().dasherize();
   }),
   show: attr('boolean', { defaultValue: true } ),
-  plural: computed('label', function() {
-    return pluralize(this.pretty_label);
-  })
+  plural: attr('string')
 });

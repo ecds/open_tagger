@@ -4,7 +4,7 @@
   </section> --}}
 
   {{!-- <ul uk-accordion> --}}
-    {{!-- {{#if @matches}}
+  {{!-- {{#if @matches}}
       <li>
         <a class="uk-accordion-title" href="#">
           Matches {{@matches.length}}
@@ -25,28 +25,35 @@
         </dl>
       </li>
     {{/if}} --}}
-    {{#if results}}
-      {{!-- <li> --}}
-        <section class="uk-text-large">
-          Suggestions from database {{@results.length}}
-        </section>
-        <dl class="uk-description-list uk-description-list-divider  uk-accordion-content">
-          {{#each @results as |result|}}
-            <dt class="result" role="button" onclick={{perform @addExistingEntity result}}>
-              {{{result.label}}} {{if (eq result.type_label 'Person') (concat '(' result.properties.life_dates ')')}}
-            </dt>
-            <dd role="button" onclick={{perform @addExistingEntity result}}>
-              {{{if result.properties.description result.properties.description "No description"}}}
-            </dd>
-          {{/each}}
-        </dl>
-      {{!-- </li> --}}
-      {{!-- {{else}}
+  {{#if results}}
+    {{!-- <li> --}}
+    <section class="uk-text-large">
+      Suggestions from database {{@results.length}}
+    </section>
+    <dl class="uk-description-list uk-description-list-divider  uk-accordion-content">
+      {{#each @results as |result|}}
+        <dt class="result" role="button" onclick={{perform @addExistingEntity result}}>
+          {{{result.label}}} {{if (eq result.type_label 'Person') (concat '(' result.properties.life_dates ')')}}
+        </dt>
+        <dd role="button" onclick={{perform @addExistingEntity result}}>
+          {{#if result.altSpellings}}
+            <section>
+              <strong>AKA:</strong> {{result.altSpellings}}
+            </section>
+          {{/if}}
+          <section>
+            {{{if result.properties.description result.properties.description "No description"}}}
+          </section>
+        </dd>
+      {{/each}}
+    </dl>
+    {{!-- </li> --}}
+    {{!-- {{else}}
       <li>
         <i>
         No suggestions found
         </i>
       </li> --}}
-    {{/if}}
+  {{/if}}
   {{!-- </ul> --}}
 </section>

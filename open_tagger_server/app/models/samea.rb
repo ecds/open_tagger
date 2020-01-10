@@ -1,2 +1,0 @@
-class Samea < ApplicationRecord
-end

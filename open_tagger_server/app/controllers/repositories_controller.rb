@@ -2,17 +2,21 @@
 
 class RepositoriesController < ApplicationController
   before_action :set_repository, only: [:show, :update, :destroy]
-
+  before_action :set_serializer, only: [:index, :show]
   # GET /repositories
   def index
-    @repositories = Repository._public
+    if @public_only
+      @repositories = Repository._public
+    else
+      @repositories = Repository.all
+    end
 
-    render json: @repositories
+    render json: @repositories, each_serializer: @serializer
   end
 
   # GET /repositories/1
   def show
-    render json: @repository
+    render json: @repository, serializer: @serializer
   end
 
   # POST /repositories
@@ -43,7 +47,19 @@ class RepositoriesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_repository
-      @repository = Repository.find(params[:id])
+      if @public_only
+        @repository = Repository._public.find(params[:id])
+      else
+        @repository = Repository.find(params[:id])
+      end
+    end
+
+    def set_serializer
+      if @public_only
+        @serializer = RepositoryPublicSerializer
+      else
+        @serializer = RepositorySerializer
+      end
     end
 
     # Only allow a trusted parameter "white list" through.

@@ -18,6 +18,10 @@ module OpenTaggerServer
 
     config.generators do |g|
       g.orm :active_record, primary_key_type: :uuid
+      g.test_framework :rspec
+      g.helper_specs true
+      g.fixture_replacement :factory_bot
+      g.factory_bot dir: 'spec/factories'
     end
 
     # Settings in config/environments/* take precedence over those specified here.

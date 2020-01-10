@@ -11,6 +11,17 @@ class Repository < ApplicationRecord
     letters.collect(&:id)
   end
 
+  def public_letters_hash
+    letters._public.map { |letter| {
+      id: letter.id,
+      date: letter.formatted_date,
+      recipients: letter.recipients.map { |r| {
+        id: r.id,
+        name: r.label
+      }}
+    }}
+  end
+
   def letter_count
     letters.count
   end

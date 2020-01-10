@@ -1,9 +1,13 @@
 class EntitiesController < ApplicationController
   before_action :set_entity, only: [:show, :update] #, :edit, :update, :destroy]
+  before_action :set_serializer, only: [:index, :show]
 
   # GET /entities
   def index
     entities = Entity.where(nil)
+    if params[:type].present?
+      params[:entity_type] = params[:type]
+    end
     if params[:entity_type].present?
       params[:entity_type] = params[:entity_type].underscore
     end
@@ -17,19 +21,32 @@ class EntitiesController < ApplicationController
       end
     elsif params[:label].present? && params[:entity_type].present?
       entities = Entity.by_type(params[:entity_type]).get_by_label(params[:label])
+    elsif params[:search]
+      entities = Entity.search(params[:search], { size: 100 }).records
+      if params[:entity_type]
+        entities = entities.where(entity_type: EntityType.find_by(label: params[:entity_type]))
+      end
+      # paginate entities, per_page: @items, each_serializer: SearchableEntitiesSerializer
+      render json: entities, each_erializer: @serializer #SearchableEntitiesSerializer
+      return
     elsif params[:entity_type].present?
       entities = Entity.by_type(params[:entity_type])
     end
-    paginate entities, per_page: @items
+    
+    if @public_only
+      entities = entities.is_public?
+    end
+
+    paginate entities, per_page: @items, each_serializer: @serializer
   end
 
   def search
-    paginate Entity.search_by_label(params[:query]).by_type(params[:type]), per_page: @items
+    paginate Entity.search_by_label(params[:query]).by_type(params[:type]), per_page: @items, each_serializer: @serializer
   end
 
   # GET /entities/1
   def show
-    render json: @entity, location: "/entities/#{@entity.id}"
+    render json: @entity, location: "/entities/#{@entity.id}", serializer: @serializer
   end
 
   # GET /entities/new
@@ -87,5 +104,13 @@ class EntitiesController < ApplicationController
                 :flagged
               ]
         )
+    end
+
+    def set_serializer
+      if @public_only
+        @serializer = EntityPublicSerializer
+      else
+        @serializer = EntitySerializer
+      end
     end
 end

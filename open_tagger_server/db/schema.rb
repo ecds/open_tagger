@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_26_161458) do
+ActiveRecord::Schema.define(version: 2019_12_12_152313) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_trgm"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
   enable_extension "unaccent"
@@ -41,6 +42,7 @@ ActiveRecord::Schema.define(version: 2019_09_26_161458) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "flagged"
+    t.boolean "is_public"
     t.index ["entity_type_id"], name: "index_entities_on_entity_type_id"
   end
 
@@ -199,7 +201,8 @@ ActiveRecord::Schema.define(version: 2019_09_26_161458) do
   end
 
   create_table "properties", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "title"
+    t.string "label"
+    t.text "prop_type"
   end
 
   create_table "repositories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -211,14 +214,44 @@ ActiveRecord::Schema.define(version: 2019_09_26_161458) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "taggings", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+    t.uuid "tag_id"
+    t.string "taggable_type"
+    t.uuid "taggable_id"
+    t.string "tagger_type"
+    t.uuid "tagger_id"
+    t.string "context", limit: 128
+    t.datetime "created_at"
+    t.index ["context"], name: "index_taggings_on_context"
+    t.index ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "taggings_idx", unique: true
+    t.index ["tag_id"], name: "index_taggings_on_tag_id"
+    t.index ["taggable_id", "taggable_type", "context"], name: "taggings_taggable_context_idx"
+    t.index ["taggable_id", "taggable_type", "tagger_id", "context"], name: "taggings_idy"
+    t.index ["taggable_id"], name: "index_taggings_on_taggable_id"
+    t.index ["taggable_type"], name: "index_taggings_on_taggable_type"
+    t.index ["tagger_id", "tagger_type"], name: "index_taggings_on_tagger_id_and_tagger_type"
+    t.index ["tagger_id"], name: "index_taggings_on_tagger_id"
+  end
+
+  create_table "tags", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer "taggings_count", default: 0
+    t.index ["name"], name: "index_tags_on_name", unique: true
+  end
+
   create_table "type_properties", force: :cascade do |t|
-    t.bigint "entity_types_id"
-    t.uuid "properties_id"
-    t.index ["entity_types_id"], name: "index_type_properties_on_entity_types_id"
-    t.index ["properties_id"], name: "index_type_properties_on_properties_id"
+    t.bigint "entity_type_id"
+    t.uuid "property_id"
+    t.index ["entity_type_id"], name: "index_type_properties_on_entity_type_id"
+    t.index ["property_id"], name: "index_type_properties_on_property_id"
   end
 
   add_foreign_key "alternate_spellings", "entities"
   add_foreign_key "letters", "languages"
   add_foreign_key "letters", "owner_rights", column: "owner_rights_id"
+  add_foreign_key "taggings", "tags"
+  add_foreign_key "type_properties", "entity_types"
+  add_foreign_key "type_properties", "properties"
 end
