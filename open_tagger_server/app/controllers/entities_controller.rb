@@ -1,6 +1,6 @@
 class EntitiesController < ApplicationController
   before_action :set_entity, only: [:show, :update] #, :edit, :update, :destroy]
-  before_action :set_serializer, only: [:index, :show]
+  before_action :set_serializer, only: [:index, :show, :search]
 
   # GET /entities
   def index
@@ -37,11 +37,15 @@ class EntitiesController < ApplicationController
       entities = entities.is_public?
     end
 
-    paginate entities, per_page: @items, each_serializer: @serializer
+    paginate entities.where.not(legacy_pk: 99999999), per_page: @items, each_serializer: @serializer
   end
 
   def search
-    paginate Entity.search_by_label(params[:query]).by_type(params[:type]), per_page: @items, each_serializer: @serializer
+    entities = Entity.where.not(legacy_pk: 99999999).search_by_label(params[:query]).by_type(params[:type])
+    if @public_only
+      entities = entities.is_public?
+    end
+    paginate entities, per_page: @items, each_serializer: @serializer
   end
 
   # GET /entities/1

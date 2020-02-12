@@ -5,12 +5,11 @@
 #
 class Letter < ApplicationRecord
   include PgSearch::Model
-  include Elasticsearch::Model
-  include Elasticsearch::Model::Callbacks
-
-  acts_as_taggable
+#  include Elasticsearch::Model
+ # include Elasticsearch::Model::Callbacks
 
   before_save :flag_letter
+  before_save :double_check
 
   has_many :letter_repositories
   has_many :repositories, through: :letter_repositories
@@ -40,9 +39,6 @@ class Letter < ApplicationRecord
   belongs_to :language, optional: true
   # belongs_to :place_entity_sent, optional: true, class_name: 'Entity'
 
-  index_name Rails.application.class.parent_name.underscore
-  document_type self.name.downcase
-  
   scope :between, lambda { |start, _end|
     where('date >= ? AND date <= ?', start, _end)
   }
@@ -65,7 +61,7 @@ class Letter < ApplicationRecord
         public: true
       }
     )
-      .where('letters.date BETWEEN ? AND ?', DateTime.new(1957), DateTime.new(1965, 12).at_end_of_month)
+    .where('letters.date BETWEEN ? AND ?', DateTime.new(1957), DateTime.new(1965, 12).at_end_of_month)
   }
 
   scope :flagged, -> {
@@ -89,11 +85,8 @@ class Letter < ApplicationRecord
                   }
 
   def formatted_date
-    if date
+      return if date.nil?
       date.strftime("%d %B %Y")
-    else
-      none
-    end
   end
 
   def recipient_list
@@ -141,11 +134,30 @@ class Letter < ApplicationRecord
       end
     end
 
-    def public_letter_start
-      DateTime.new(1957)
+    def double_check
+      return if self.content.nil?
+      doc = Nokogiri::XML(self.content)
+      if doc.content.empty?
+        doc = Nokogiri::HTML(self.content)
+      end
+      return if doc.content.empty?
+      EntityType.all.each do |type|
+        next if doc.xpath("//#{type.label}").empty?
+        doc.xpath("//#{type.label}").each do |tag|
+          if tag.has_attribute? 'profile_id'
+            next if !validate_uuid(tag['profile_id'])
+            entity = Entity.find(tag['profile_id'])
+            next if entity.nil?
+            next if self.entities_mentioned.include? entity
+            self.entities_mentioned << entity
+          end
+        end
+      end
     end
 
-    def public_letter_end
-      DateTime.new(1965, 12).at_end_of_month
-    end
+   def validate_uuid(uuid)
+     uuid_regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+     return true if uuid_regex.match?(uuid.to_s.downcase)
+     return false
+  end
 end

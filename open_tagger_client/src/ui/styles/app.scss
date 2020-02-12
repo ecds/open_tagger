@@ -88,7 +88,7 @@ pre {
 }
 
 .public_event {
-  public_events {
+  public_event {
     background: $tag-background;
     color: $tag-color;
     cursor: pointer;
@@ -143,7 +143,7 @@ pre {
 }
 
 .work_of_art  {
-  work-of-art {
+  work_of_art {
     background: $tag-background;
     color: $tag-color;
     cursor: pointer;
@@ -189,6 +189,12 @@ pre {
 .flag {
   background: transparent !important;
   color: #666 !important;
+}
+
+pre {
+  .flagged {
+    @include flagged;
+  }
 }
 
 .pell-content {
@@ -279,4 +285,20 @@ tmp {
   border-width: 1px;
   border-color: gray;
   border-radius: 20%;
+}
+
+.uk-accordion {
+  span {
+    text-transform: capitalize;
+  }
+}
+
+.uk-accordion-title {
+  font-size: 1rem;
+}
+
+.highlight {
+  background: lightgreen !important;
+  color: black !important;
+  font-size: 1.5rem;
 }

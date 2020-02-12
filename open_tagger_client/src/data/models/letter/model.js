@@ -4,14 +4,13 @@ import { computed } from '@ember/object';
 const {
   Model,
   attr,
-  belongsTo,
   hasMany
 } = DS;
 
 export default Model.extend({
   code: attr('string'),
   content: attr('string'),
-  date: attr('date'),
+  date: attr('date', { defaultValue: '?? ?? ????' }),
   month: attr('number'),
   year: attr('number'),
   recipient_list: attr('string'),

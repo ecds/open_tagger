@@ -20,5 +20,5 @@ export default DS.JSONAPIAdapter.extend({
       'X-API-KEY': 'secret'
     });
   },
-  host: 'http://ot-api.ecdsdev.org'
+  host: 'https://ot-api.ecdsdev.org'
 });

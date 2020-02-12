@@ -21,6 +21,6 @@ export default DS.JSONAPIAdapter.extend({
     });
   },
   
-  host: 'http://ot-api.ecdsdev.org'
+  host: 'https://ot-api.ecdsdev.org'
   // host: 'http://192.168.26.128:3000'
 });

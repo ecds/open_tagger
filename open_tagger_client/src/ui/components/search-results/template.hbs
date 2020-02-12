@@ -1,41 +1,14 @@
 <section class="uk-margin">
-  {{!-- <section class="uk-text-large">
-    Search Results
-  </section> --}}
-
-  {{!-- <ul uk-accordion> --}}
-  {{!-- {{#if @matches}}
-      <li>
-        <a class="uk-accordion-title" href="#">
-          Matches {{@matches.length}}
-        </a>
-        <dl class="uk-description-list uk-description-list-divider uk-accordion-content">
-          {{#each @matches as |match|}}
-            <dt role="button" onclick={{perform @addExistingEntity match}}>
-              {{{match.entity.label}}}
-            </dt>
-            <dd role="button" onclick={{perform @addExistingEntity match}}>
-              {{#if match.entity.properties.description}}
-                {{{match.entity.properties.description}}}
-              {{else}}
-                "No description"
-              {{/if}}
-            </dd>
-          {{/each}}
-        </dl>
-      </li>
-    {{/if}} --}}
   {{#if results}}
-    {{!-- <li> --}}
     <section class="uk-text-large">
       Suggestions from database {{@results.length}}
     </section>
-    <dl class="uk-description-list uk-description-list-divider  uk-accordion-content">
+    <ul class="uk-list uk-list-divider" uk-accordion>
       {{#each @results as |result|}}
-        <dt class="result" role="button" onclick={{perform @addExistingEntity result}}>
-          {{{result.label}}} {{if (eq result.type_label 'Person') (concat '(' result.properties.life_dates ')')}}
-        </dt>
-        <dd role="button" onclick={{perform @addExistingEntity result}}>
+        <li>
+          <a href="#" class="uk-accordion-title uk-text-large uk-text-bold">
+            {{{result.label}}} {{if (eq result.type_label 'Person') (concat '(' result.properties.life_dates ')')}}
+          </a>
           {{#if result.altSpellings}}
             <section>
               <strong>AKA:</strong> {{result.altSpellings}}
@@ -44,16 +17,18 @@
           <section>
             {{{if result.properties.description result.properties.description "No description"}}}
           </section>
-        </dd>
+          <section class="uk-accordion-content">
+            {{#each-in result.properties as |k v|}}
+              <span>{{k}}</span>: {{{v}}}<br>
+            {{/each-in}}
+            <div class="uk-margin">
+              <UkButton @color="primary" @on-click={{perform @addExistingEntity result}}>
+                Add Tag
+              </UkButton>
+            </div>
+          </section>
+        </li>
       {{/each}}
-    </dl>
-    {{!-- </li> --}}
-    {{!-- {{else}}
-      <li>
-        <i>
-        No suggestions found
-        </i>
-      </li> --}}
+    </ul>
   {{/if}}
-  {{!-- </ul> --}}
 </section>

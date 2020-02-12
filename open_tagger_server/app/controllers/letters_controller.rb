@@ -20,7 +20,11 @@ class LettersController < ApplicationController
         end
       end
     end
-    @letters = @letters.between(@start, @end)
+    if params[:nodate] == 'true'
+      @letters = @letters.where(date: nil)
+    else
+      @letters = @letters.between(@start, @end)
+    end
     if @public_only
       @letters = @letters._public
     end

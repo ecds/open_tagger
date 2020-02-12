@@ -12,6 +12,7 @@ export default class LettersRoute extends Route {
 
   setupController(controller/*, { letters, meta }*/) {
     this._super(controller/*, letters*/);
+    console.log("TCL: setupController -> controller", controller)
     // controller.set('letters', letters);
     // controller.set('meta', meta);
     this.store.findAll('letter-date').then(dates => {

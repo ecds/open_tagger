@@ -15,7 +15,7 @@
       {{#each value as |l index|}}
         {{input value=l key-up=(action "updateArrayItem" @entity.properties property index) class="uk-input" placeholder=(concat 'Add to ' (titleize property))}}
       {{/each}}
-      <UkButton @on-click={{perform addToArrayProp property}}>Add {{titleize property}}</UkButton>
+      <UkButton @on-click={{action "addToArrayProp" property}}>Add {{titleize property}}</UkButton>
     </div>
   {{else if (isinstanceof value "Object")}}
     {{#each-in value as |p v|}}
@@ -49,17 +49,17 @@
       <label class="uk-form-label">
         {{titleize property}}
       </label>
-      {{#if (or (eq property 'description') (eq property 'profile'))}}
+      {{!-- {{#if (or (eq property 'description') (eq property 'profile'))}} --}}
         {{pell-editor
           class="pell"
           value=value
           pellOptions=editorOptions
           onChange=(action (mut (get @entity.properties property)))
         }}
-      {{else}}
+      {{!-- {{else}}
         {{input value=(mut (get @entity.properties property)) class="uk-input"}}
-      {{/if}}
+      {{/if}} --}}
     </div>
   {{/if}}
 {{/each-in}}
-<UkButton @color="primary" @on-click={{perform @save @entity}}>Save</UkButton>
+<UkButton @color="primary" @on-click={{@save}}>{{if @actionText @actionText "Save"}}</UkButton>

@@ -1,22 +1,24 @@
 import Component from '@ember/component';
-import { task } from 'ember-concurrency';
+// import { task } from 'ember-concurrency';
 import { action } from '@ember-decorators/object';
 
 export default class EntityFormComponent extends Component {
+
   @action
   updateArrayItem(obj, property, index, value) {
     obj[property][index] = value
   }
 
-  addToArrayProp = task(function * (property) {
+  @action
+  addToArrayProp(property) {
     this.entity.properties[property].push('');
     let update = this.entity.properties[property]
-    let newAtrs = []
+    let newAttrs = [];
     update.forEach(item => {
-      newAtrs.push(item)
-    })
-    this.entity.set(`properties.${property}`, newAtrs);
-  })
+      newAttrs.push(item);
+    });
+    this.entity.set(`properties.${property}`, newAttrs);
+  }
 
   @action
   addToObjectProp(parent, obj, property) {
@@ -32,7 +34,6 @@ export default class EntityFormComponent extends Component {
     obj.forEach(o => {
       grrr.push(o)
     });
-    console.log(grrr)
     this.entity.set(`properties.${parent}.${property}`, grrr)
   }
 }

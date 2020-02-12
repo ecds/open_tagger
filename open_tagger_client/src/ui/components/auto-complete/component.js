@@ -4,7 +4,7 @@ import fetch from 'fetch';
 
 export default class AutoCompleteComponent extends Component {
   aC = null;
-  didNotFetch = true;
+  firstFetch = true;
 
   select(event) {
     this.args.filterRecipients(event.selection.match);
@@ -15,14 +15,13 @@ export default class AutoCompleteComponent extends Component {
     this.aC = new autoComplete({
       data: {
         src: async () => {
-          // Silly guard to prevent the fetch happening twice. Only fetch the second time it's called.
-          // if (this.didNotFetch) {
-          //   return;
-          // }
-          const source = await fetch('http://ot-api.ecdsdev.org/letter-recipients');
+
+          if (args.recipientsList) {
+            return args.recipientsList;
+          }
+          const source = await fetch('https://ot-api.ecdsdev.org/letter-recipients');
           const data = await source.json();
-          args.enableAutoComplete();
-          this.didNotFetch = true;
+          args.enableAutoComplete(data);
           return data;
         },
         key: ['recipient']

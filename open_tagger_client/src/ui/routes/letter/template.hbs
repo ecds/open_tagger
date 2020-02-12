@@ -135,7 +135,7 @@
             </section>
           {{else if this.tagToEdit}}
             {{#if this.tagToEdit.flagged}}
-              <fieldset class="uk-fieldset">
+              {{!-- <fieldset class="uk-fieldset">
                 <legend class="uk-legend">
                   Label
                 </legend>
@@ -163,9 +163,12 @@
                     Approve
                   </UkButton>
                 </div>
-              </fieldset>
+              </fieldset> --}}
+              <EntityForm @entity={{this.tagToEdit}} @save={{perform unFlag tagToEdit}} @actionText="Approve" class="entity-form"></EntityForm>
+
             {{else}}
-              <table class="uk-table">
+              <EntityForm @entity={{this.tagToEdit}} @save={{perform saveEntity tagToEdit}} class="entity-form"></EntityForm>
+            {{!-- <table class="uk-table">
                 <tbody>
                   <tr>
                     <td class="uk-table-shrink uk-text-bold">Label</td>
@@ -180,9 +183,9 @@
                     <td class="uk-table-expand">{{tagToEdit.properties.description}}</td>
                   </tr>
                 </tbody>
-              </table>
+              </table> --}}
             {{/if}}
-            <section class="uk-form-controls">
+            <section class="uk-form-controls uk-margin">
               <UkButton @color="secondary" @on-click={{action "removeTag"}}>
                 Remove Tag
               </UkButton>
@@ -222,6 +225,15 @@
           {{else}}
           {{/if}}
         </section>
+      {{else if emptyId}}
+        <section>
+          <div class="uk-margin">
+            <UkButton @color="secondary" @on-click={{action "removeTag"}}>Remove tag with missing ID?</UkButton>
+          </div>
+          <div class="uk-margin">
+            <UkButton @color="link" @on-click={{action "reset"}}>Cancel</UkButton>
+          </div>
+        </section>
       {{else}}
         <h1 class="uk-heading-hero uk-text-muted uk-text-uppercase uk-text-center">
           Select text to tag
@@ -234,7 +246,25 @@
               {{{if entity.label entity.label "Loading...."}}} {{if (eq entity.type_label 'Person') (concat '(' entity.properties.life-dates ')')}}
             </dt>
             <dd class={{if entity.flagged "flagged"}}>
-              {{{entity.properties.description}}}
+              <section>
+                {{{entity.properties.description}}}
+              </section>
+              <UkAccordion>
+                <li id={{entity.id}}>
+                  <a class="uk-accordion-title" href="#">See More</a>
+                  <div class="uk-accordion-content">
+                    {{#each-in entity.properties as |k v|}}
+                      <span>{{k}}</span>: {{{v}}}<br>
+                    {{/each-in}}
+                    <div class="uk-margin">
+                      <UkButton @color="primary" @on-click={{perform deleteTag entity}}>
+                        Delete Tag
+                      </UkButton>
+                    </div>
+                  </div>
+
+                </li>
+              </UkAccordion>
             </dd>
           {{/each}}
         </dl>
@@ -247,11 +277,14 @@
           @editTag={{perform editTag}} @contenteditable={{this.editLetter}}>
         </LettersView>
       </div>
-      {{#if this.editLetter}}
+      <section class='uk-margin'>
         <UkButton @color="primary" @on-click={{perform this.updateLetter}}>Save Letter</UkButton>
-      {{else}}
-        <UkButton @color="secondary" @on-click={{action (toggle "editLetter" this)}}>Edit Letter</UkButton>
-      {{/if}}
+        {{#if this.editLetter}}
+          <UkButton @color="secondary" @on-click={{action (toggle "editLetter" this)}}>Disable Edit Letter</UkButton>
+        {{else}}
+          <UkButton @color="secondary" @on-click={{action (toggle "editLetter" this)}}>Enable Edit Letter</UkButton>
+        {{/if}}
+      </section>
     </LetterWrapper>
   {{else}}
     <div class="uk-width-1-1">

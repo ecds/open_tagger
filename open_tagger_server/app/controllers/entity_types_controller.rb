@@ -3,7 +3,11 @@ class EntityTypesController < ApplicationController
 
   # GET /entity_types
   def index
-    render json: EntityType.all
+    if params[:label]
+      render json: EntityType.where(label: params[:label])
+    else
+      render json: EntityType.all
+    end
   end
 
   # GET /entity_types/1

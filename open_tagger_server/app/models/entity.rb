@@ -4,6 +4,7 @@ class Entity < ApplicationRecord
   include Elasticsearch::Model::Callbacks
   validates :legacy_pk, presence: true
   before_validation :add_legacy_pk
+  before_create :add_properties
   before_save :remove_div
   before_save :set_public
   # serialize :properties, HashSerializer
@@ -148,6 +149,23 @@ class Entity < ApplicationRecord
         self.is_public = false
       else
         self.is_public = true
+      end
+    end
+
+    def add_properties
+      if self.properties.nil?
+        self.properties = {}
+      end
+      self.entity_type.properties.each do |p|
+        if !self.properties.has_key? p
+          if p.prop_type == 'a'
+            self.properties[p.label] = []
+          elsif p.prop_type == 'h'
+            self.properties[p.label] = {}
+          elsif p.prop_type == 's'
+            self.properties[p.label] = ''
+          end
+        end
       end
     end
 # Entity.all.each do |e|

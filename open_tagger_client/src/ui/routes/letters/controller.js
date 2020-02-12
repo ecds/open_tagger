@@ -6,7 +6,7 @@ import { task, waitForProperty } from 'ember-concurrency';
 
 export default class LettersController extends Controller {
   store = service();
-  queryParams = ['start', 'end', 'recipients', 'page', 'items', 'flaggedOnly'];
+  queryParams = ['start', 'end', 'recipients', 'page', 'items', 'flaggedOnly', 'nodate'];
   start = null;
   end = null;
   recipients = null;
@@ -19,6 +19,8 @@ export default class LettersController extends Controller {
   recipients = null;
   letterDates = {};
   flaggedOnly = false;
+  nodate = false;
+  recipientsList = null;
 
   itemValues = [10, 25, 50, 100, 150, 200];
 
@@ -56,7 +58,8 @@ export default class LettersController extends Controller {
         items: this.items,
         start: this.startDate,
         end: this.end,
-        flagged: this.flaggedOnly
+        flagged: this.flaggedOnly,
+        nodate: this.nodate
       });
     this.set('letters', letters);
     this.set('meta', letters.meta)
@@ -79,7 +82,7 @@ export default class LettersController extends Controller {
     return Array.from({length:parseInt(this.meta.pagination['total-pages'])},(v,k)=>k+1)
   }
 
-  @computed('model', 'start', 'end', 'recipients', 'page', 'items')
+  @computed('model', 'start', 'end', 'recipients', 'page', 'items', 'nodate', 'flaggedOnly')
   get filteredLetters() {
     this.get('fetchData').perform();
   }
@@ -92,19 +95,20 @@ export default class LettersController extends Controller {
   @action
   filterRecipients(selection) {
     this.set('recipients', selection);
-    this.get('fetchData').perform();
+    // this.get('fetchData').perform();
   }
 
   @action
   clearRecipientsFilter() {
     document.getElementById('autoComplete').value = null
     this.set('recipients', null);
-    this.get('fetchData').perform();
+    // this.get('fetchData').perform();
   }
 
   @action
-  enableAutoComplete() {
+  enableAutoComplete(data) {
     this.set('autoCompleteEmpty', false);
+    this.set('recipientsList', data);
   }
 
   @action
@@ -116,22 +120,21 @@ export default class LettersController extends Controller {
   nextPageRequested() {
     this.incrementProperty('currentPage');
     this.set('page', this.currentPage);
-    this.get('fetchData').perform();
+    // this.get('fetchData').perform();
   }
 
   @action
   prevPageRequested() {
     this.decrementProperty('currentPage');
     this.set('page', this.currentPage);
-    this.get('fetchData').perform();
+    // this.get('fetchData').perform();
   }
 
   @action
   jumpToPage(page) {
-    console.log("TCL: LettersController -> jumpToPage -> page", page)
     this.set('currentPage', parseInt(page));
     this.set('page', parseInt(page));
-    this.get('fetchData').perform();
+    // this.get('fetchData').perform();
   }
 
   @action
@@ -151,7 +154,7 @@ export default class LettersController extends Controller {
       this.set('end', document.getElementById('end-date-field').value);
       // this.set('end', date);
     }
-    this.get('fetchData').perform();
+    // this.get('fetchData').perform();
     // this.get('store').query('letter', {
     //   recipients: this.recipients,
     //   start: this.startDate,
@@ -170,7 +173,18 @@ export default class LettersController extends Controller {
     } else {
       this.set('flaggedOnly', false);
     }
-    this.get('fetchData').perform();
+    // this.get('fetchData').perform();
+  }
+
+  @action
+  toggleNodate(event) {
+    if (event.target.checked) {
+      this.set('nodate', true);
+      this.set('page', 1);
+    } else {
+      this.set('nodate', false);
+    }
+    // this.get('fetchData').perform();
   }
 
   formatDate(date) {
@@ -183,7 +197,7 @@ export default class LettersController extends Controller {
     // event.target.previousElementSibling.firstElementChild.value = this.formatDate(min);
     this.set('startDate', min);
     this.set('start', this.formatDate(min))
-    this.get('fetchData').perform();
+    // this.get('fetchData').perform();
     // this.fetchRange('min', min)
   }
   
@@ -193,7 +207,7 @@ export default class LettersController extends Controller {
     // event.target.previousElementSibling.firstElementChild.value = this.formatDate(max);
     this.set('endDate', max);
     this.set('end', this.formatDate(max))
-    this.get('fetchData').perform();
+    // this.get('fetchData').perform();
     // this.selectionChanged('fetchRange', 'max', max)
   }
 
