@@ -1,0 +1,25 @@
+<hr>
+
+<section>
+  <fieldset class="uk-fieldset">
+    <legend class="uk-legend">Extra Attributes</legend>
+    <div class="uk-margin uk-grid-small uk-child-width-auto" uk-grid>
+      {{#each @tagTags as |tagTag|}}
+        <div>
+          <input
+            type="checkbox"
+            class="uk-checkbox"
+            id={{tagTag}}
+            name="tag_tags"
+            value={{tagTag}}
+            onchange={{@change}}
+            checked={{included tagTag @tagTagsToAdd}}>
+        </div>
+        <label class="uk-form-label uk-text-capitalize" for={{tagTag}}>{{tagTag}}</label>
+        <div>|</div>
+      {{/each}}
+    </div>
+  </fieldset>
+</section>
+
+<hr>

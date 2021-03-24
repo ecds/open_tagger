@@ -3,13 +3,12 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.4.1'
+ruby '2.6.3'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.2.0'
 gem 'pg'
 gem 'pg_search'
-gem 'mysql2'
 # Use Puma as the app server
 gem 'puma', '~> 3.11'
 # Use SCSS for stylesheets
@@ -23,6 +22,8 @@ gem 'puma', '~> 3.11'
 gem 'rack-cors'
 gem 'libxml-ruby'
 gem 'rspreadsheet'
+
+gem 'roo'
 
 # gem 'fast_jsonapi'
 # used for deserialization
@@ -59,7 +60,7 @@ group :development do
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+# gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 # Linked data stuff
 gem 'json-ld'
@@ -69,15 +70,16 @@ gem 'acts-as-taggable-on', '~> 6.0'
 # Pagination
 gem 'pagy'
 gem 'pager_api'
+gem 'will_paginate'
 # gem 'kaminari'
 # gem 'open-uri'
 gem 'nokogiri'
 gem 'dalli'
 
 # For normalizing addresses
-gem 'nominatim'
-gem 'ruby_postal'
-gem 'geocoder'
+# gem 'nominatim'
+# gem 'ruby_postal'
+# gem 'geocoder'
 
 # For normalizing names
 gem 'httparty'
@@ -90,5 +92,7 @@ gem 'google-api-client'
 
 # For sting comparisions
 gem 'fuzzy-string-match'
-gem 'elasticsearch-model'
-gem 'elasticsearch-rails'
+# gem 'elasticsearch-model'
+# gem 'elasticsearch-rails'
+gem 'searchkick'
+gem 'paper_trail'

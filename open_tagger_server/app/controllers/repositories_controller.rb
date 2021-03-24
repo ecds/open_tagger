@@ -6,12 +6,12 @@ class RepositoriesController < ApplicationController
   # GET /repositories
   def index
     if @public_only
-      @repositories = Repository._public
+      @repositories = Repository.all.reject { |r| r.letters._public.empty? }
     else
       @repositories = Repository.all
     end
 
-    render json: @repositories, each_serializer: @serializer
+    render json: @repositories, each_serializer: RepositorySerializer
   end
 
   # GET /repositories/1

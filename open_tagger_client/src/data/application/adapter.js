@@ -1,24 +1,18 @@
 import DS from 'ember-data';
 
-// export default DS.RESTAdapter.extend({
-//   host: 'http://localhost:3000',
-//     urlForQuery (query, modelName) {
-//       console.log(query, modelName)
-//       switch(modelName) {
-//         case 'quad':
-//           return `${this.host}/${modelName}s/${query}`;
-//         default:
-//           return this._super(...arguments);
-//       }
-//     }
-// });
-
 export default DS.JSONAPIAdapter.extend({
   init() {
     this._super(...arguments);
     this.set('headers', {
-      'X-API-KEY': 'secret'
+      'X-API-KEY': 'secret butt'
     });
+    console.log(this)
   },
-  host: 'https://ot-api.ecdsdev.org'
+
+  deleteRecord(store, type, snapshot) {
+    this._super(...arguments);
+    console.log("deleteRecord -> store, type, snapshot", store, type, snapshot)
+    var id = snapshot.id;
+    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), 'DELETE', {});
+  }
 });

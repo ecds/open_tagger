@@ -51,7 +51,7 @@ class ImportFromGoogleSheets
       {
         sheet_id: '1b1J0Gt9NPLsrfXJ-agc2GjCRb-7Upq7w1ddW40dV4i4',
         type: 'attendance',
-        range: 'A2:H'
+        range: 'A2:G'
       },
       {
         sheet_id: '13RbWm78OXzNt6AfjvXzY7b6ldIsFtIrBFaw01v9ciQs',

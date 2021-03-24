@@ -6,9 +6,12 @@
 
 # Ignore bundler config.
 .bundle
-
+.ruby-version
 *log
 *logs
+*.xlsx
+*.sql
+*.bk
 
 # Ignore the default SQLite database.
 db/*.sqlite3

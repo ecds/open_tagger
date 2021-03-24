@@ -1,4 +1,5 @@
 require 'httparty'
+require 'wikipedia'
 
 class ViafWikidata
   def initialize
@@ -67,9 +68,16 @@ class ViafWikidata
 
     def add_image(wikidata_id)
       wd = Wikidata::Item.find wikidata_id
-      return if wd.image.nil?
-      image = { link: wd.image.url, attribution: 'Wikimedia Commons' }
-      { images: [image] }
+      page = Wikipedia.find(wd.title)
+      return {} if page.nil?
+      return {} unless page.image_urls.is_a? Array
+      return {} if page.image_urls.empty?
+      images = []
+      page.image_urls.each do |link|
+        next if link.ends_with? 'svg'
+        images.push({ link: link, attribution: 'Wikimedia Commons' })
+      end
+      return {images: images}
     end
 end
 

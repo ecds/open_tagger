@@ -13,7 +13,6 @@ export default class LettersView extends Component {
   }
 
   mouseUp(event) {
-    console.log(event)
     if (this.element.contains(document.getElementsByTagName('tmp')[0])) return;
     if (this.contenteditable) return;
     if (this.letterElements.includes(event.target.tagName) || this.letterElements.includes(event.target.parentElement.tagName)) {

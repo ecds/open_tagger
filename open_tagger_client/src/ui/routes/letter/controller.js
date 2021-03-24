@@ -2,6 +2,7 @@ import Controller from '@ember/controller';
 import { action } from '@ember-decorators/object';
 import { A } from '@ember/array';
 import { task, timeout, waitForProperty } from 'ember-concurrency';
+import UIkit from 'uikit';
 
 export default class LettersLetterController extends Controller {
   results = this.results || A([]);
@@ -15,6 +16,8 @@ export default class LettersLetterController extends Controller {
   tagElementToEdit = this.tagElementToEdit || null;
   editLetter = this.contenteditable || false;
   editLetter = this.emptyId || false;
+  tagTags = ['directing', 'revision', 'star'];
+  tagTagsToAdd = this.tagTagsToAdd || [];
 
   editorOptions = {
     actions: [
@@ -50,7 +53,7 @@ export default class LettersLetterController extends Controller {
     this.set('newEntity', newEntity);
     yield this.get('tagExistingEntity').perform(newEntity);
   })
-  
+
   saveSuggestion = task(function * () {
     yield this.newEntity.save();
     this.set('newEntity', null);
@@ -80,15 +83,26 @@ export default class LettersLetterController extends Controller {
     yield timeout(300);
     return content;
   })
-  
+
   updateLetter = task(function * () {
+    const originalContent = this.model.letter.content;
     const content = yield this.get('scrubLetter').perform();
     yield timeout(300);
-    this.model.letter.setProperties({
-      content
-    });
-    yield this.model.letter.save();
-    document.getElementsByTagName('pre')[0].innerHTML = content;
+
+    // if ((originalContent.length - 100) > content.length) {
+    //   yield UIkit.modal.alert('It looks like this will clear the contents of this letter. It\'s not your fault, it\'s Jay\'s. Please let him know which letter and what you were trying to do.');
+    //   this.model.letter.setProperties({
+    //     content: originalContent
+    //   });
+    //   document.getElementsByTagName('pre')[0].innerHTML = originalContent;
+    // } else {
+      this.model.letter.setProperties({
+        content
+      });
+      document.getElementsByTagName('pre')[0].innerHTML = content;
+      yield this.model.letter.save();
+    // }
+
     this.set('editLetter', false);
   })
 
@@ -115,6 +129,9 @@ export default class LettersLetterController extends Controller {
       }
       newElement.setAttribute('profile_id', entity.id);
       newElement.innerHTML = elementToTag.innerHTML
+      yield this.tagTagsToAdd.forEach(tagTag => {
+        newElement.setAttribute(tagTag, true);
+      })
       if (!elementToTag.parentNode) return;
       elementToTag.parentNode.replaceChild(newElement, elementToTag);
     }
@@ -134,7 +151,14 @@ export default class LettersLetterController extends Controller {
 
   saveEntity = task(function * (entity) {
     yield entity.save();
+    yield this.get('updateLetter').perform();
     this.clear();
+  })
+
+  deleteEntity = task(function * (entity) {
+    const entityToDelete = yield this.store.peekRecord('entity', entity.id);
+    entityToDelete.destroyRecord();
+    // yield entityToDelete.save();
   })
 
   unTagEntity = task(function * () {
@@ -148,7 +172,7 @@ export default class LettersLetterController extends Controller {
     yield this.model.letter.save();
     this.clear();
   })
-  
+
   tagExistingEntity = task(function * (entity) {
     yield this.get('tagEntity').perform(entity);
     this.model.letter.get('entities_mentioned').pushObject(entity);
@@ -162,14 +186,24 @@ export default class LettersLetterController extends Controller {
 
   editTag = task(function * (event) {
     document.getSelection().removeAllRanges();
+    this.set('tagTagsToAdd', []);
     if (event.target.attributes.profile_id && event.target.attributes.profile_id.value != '') {
+      yield this.tagTags.forEach(tag => {
+        if (event.target.attributes[tag]) {
+          this.tagTagsToAdd.push(tag);
+        }
+      });
       try {
         this.set('selectedText', event.target.innerText);
         let tagToEdit = yield this.store.peekRecord('entity', event.target.attributes.profile_id.value);
+        if (tagToEdit == null) {
+          this.set('emptyId', true);
+          this.set('selectedText', null);
+        }
         this.set('tagElementToEdit', event.target);
         this.set('tagToEdit', tagToEdit);
       } catch(error) {
-        console.log(error, event.target);
+        // console.log(error, event.target);
       }
     } else {
       // let type = yield this.store.queryRecord('entity_type', { label: event.target.tagName.toLowerCase()})
@@ -192,6 +226,29 @@ export default class LettersLetterController extends Controller {
       this.get('unTagEntity').perform();
     }
   })
+
+  @action
+  collectExtraAttrs(event) {
+    const target = event.target;
+    if (target.checked) {
+      this.tagTagsToAdd.push(target.id);
+      if (this.tagElementToEdit) {
+        this.tagElementToEdit.setAttribute(target.id, true);
+      }
+    }
+    else if (
+      this.tagTagsToAdd.includes(target.id)
+      && !target.checked
+    ) {
+      this.tagTagsToAdd.splice(
+        this.tagTagsToAdd.indexOf(target.id),
+        1
+      );
+      if (this.tagElementToEdit) {
+        this.tagElementToEdit.removeAttribute(target.id)
+      }
+    }
+  }
 
   @action
   setLetterContent(content) {
@@ -243,7 +300,7 @@ export default class LettersLetterController extends Controller {
   cancel() {
     this.send('reset');
   }
-  
+
   @action
   reset() {
     this.clear();

@@ -62,4 +62,7 @@
     </div>
   {{/if}}
 {{/each-in}}
+
+{{yield}}
+
 <UkButton @color="primary" @on-click={{@save}}>{{if @actionText @actionText "Save"}}</UkButton>

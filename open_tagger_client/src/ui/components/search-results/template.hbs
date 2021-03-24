@@ -26,6 +26,13 @@
                 Add Tag
               </UkButton>
             </div>
+            {{#if result.deletable}}
+              <div class="uk-margin">
+                <UkButton @color="secondary" @on-click={{action this.confirmDelete result}}>
+                  delete entity
+                </UkButton>
+              </div>
+            {{/if}}
           </section>
         </li>
       {{/each}}

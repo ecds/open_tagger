@@ -35,8 +35,23 @@ pre {
 }
 
 @mixin flagged() {
-  background: #D50000 !important;
-  color: white !important;
+  background-color: #D50000 !important;
+
+  attendance,
+  person,
+  place,
+  writing,
+  public_event,
+  translating,
+  music,
+  production,
+  publication,
+  work_or_art,
+  reading,
+  organization {
+    background-color: #D50000 !important;
+    color: white !important;
+  }
 }
 
 .letter-list {
@@ -111,11 +126,14 @@ pre {
 
 .attendance {
   attendance {
-    background: $tag-background;
+    background-color: $tag-background;
     color: $tag-color;
     cursor: pointer;
     &.flag {
-      @include flagged;
+      // @include flagged;
+      attendance {
+        @include flagged;
+      }
     }
   }
 }
@@ -188,7 +206,6 @@ pre {
 
 .flag {
   background: transparent !important;
-  color: #666 !important;
 }
 
 pre {

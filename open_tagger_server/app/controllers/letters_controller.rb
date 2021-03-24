@@ -25,7 +25,7 @@ class LettersController < ApplicationController
     else
       @letters = @letters.between(@start, @end)
     end
-    if @public_only
+    if ['https://ot.ecdsdev.org', 'http://ot.ecdsdev.org', 'http://localhost:4200'].exclude? request.headers['HTTP_ORIGIN']
       @letters = @letters._public
     end
     if params[:flagged] == 'true'
@@ -36,12 +36,12 @@ class LettersController < ApplicationController
 
   # GET /letters/1
   def show
-    if @public_only
-      @letter = Letter._public.find(params[:id])
-      render json: @letter, include: ['repositorites', 'places-written']
-    else
-      @letter = Letter.find(params[:id])
+    @letter = Letter.find(params[:id])
+    if ['https://ot.ecdsdev.org', 'http://ot.ecdsdev.org', 'http://localhost:4200'].include? request.headers['HTTP_ORIGIN']
       render json: @letter, serializer: LetterWithContentSerializer
+    else
+      @letter.repositories.reject { |r| !r.public }
+      render json: @letter, include: ['repositorites', 'places-written']
     end
   end
 
@@ -92,6 +92,7 @@ class LettersController < ApplicationController
                 :first,
                 :last,
                 :wikidata_id,
+                :literals,
                 :content,
                 :entities_mentioned
               ]

@@ -14,7 +14,8 @@ export default Model.extend({
   properties: attr(),
   type_label: attr('string'),
   flagged: attr('boolean'),
-  
+  deletable: attr('boolean'),
+
   safeLabel: computed('label', function() {
     return new htmlSafe(this.get('label'));
   }),

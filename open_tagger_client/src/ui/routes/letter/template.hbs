@@ -48,6 +48,13 @@
     </div>
   </div>
 {{/if}}
+{{#if this.saveEntity.isRunning}}
+  <div class="task-running">
+    <div class="uk-position-center uk-text-large">
+      Saving Entity
+    </div>
+  </div>
+{{/if}}
 
 <h1>{{model.letter.formatted_date}} - {{model.letter.recipient_list}}</h1>
 
@@ -118,9 +125,8 @@
               </section>
             </form>
 
-
             {{!-- {{#if (is-empty entityToEdit.id)}} --}}
-            <section>
+            <section class="uk-margin">
               <UkButton @on-click={{perform flagEntity}} @color="primary">
                 Not Sure
               </UkButton>
@@ -129,61 +135,44 @@
                 {{selectedType.label}}
               </UkButton>
             </section>
+
+            <hr>
+
+            <section>
+              <fieldset class="uk-fieldset">
+                <legend class="uk-legend">Extra Attributes</legend>
+                <div class="uk-margin uk-grid-small uk-child-width-auto" uk-grid>
+                  {{#each this.tagTags as |tagTag|}}
+                    <div>
+                      <input type="checkbox" class="uk-checkbox" id={{tagTag}} name="tag_tags" value={{tagTag}} onchange={{action "collectExtraAttrs"}}>
+                    </div>
+                    <label class="uk-form-label uk-text-capitalize" for={{tagTag}}>{{tagTag}}</label>
+                    <div>|</div>
+                  {{/each}}
+                </div>
+              </fieldset>
+            </section>
+
+            <hr>
+
             <section class="uk-margin">
               <SearchResults @results={{this.results}}
-                @addExistingEntity={{this.tagExistingEntity}}></SearchResults>
+                @addExistingEntity={{this.tagExistingEntity}}
+                @deleteEntity={{this.deleteEntity}}
+              />
             </section>
           {{else if this.tagToEdit}}
             {{#if this.tagToEdit.flagged}}
-              {{!-- <fieldset class="uk-fieldset">
-                <legend class="uk-legend">
-                  Label
-                </legend>
-                <div class="uk-margin">
-                  {{pell-editor
-                    class="pell"
-                    value=this.tagToEdit.label
-                    pellOptions=editorOptions
-                    onChange=(action (mut this.tagToEdit.label))
-                  }}
-                </div>
-                <legend class="uk-legend">
-                  Description
-                </legend>
-                <div class="uk-margin">
-                  {{pell-editor
-                    class="pell"
-                    value=tagToEdit.properties.description
-                    pellOptions=editorOptions
-                    onChange=(action (mut tagToEdit.properties.description))
-                  }}
-                </div>
-                <div class="uk-margin">
-                  <UkButton @color="primary" @on-click={{perform unFlag tagToEdit}}>
-                    Approve
-                  </UkButton>
-                </div>
-              </fieldset> --}}
+
               <EntityForm @entity={{this.tagToEdit}} @save={{perform unFlag tagToEdit}} @actionText="Approve" class="entity-form"></EntityForm>
 
             {{else}}
-              <EntityForm @entity={{this.tagToEdit}} @save={{perform saveEntity tagToEdit}} class="entity-form"></EntityForm>
-            {{!-- <table class="uk-table">
-                <tbody>
-                  <tr>
-                    <td class="uk-table-shrink uk-text-bold">Label</td>
-                    <td class="uk-table-expand">{{{tagToEdit.label}}} {{if (eq tagToEdit.type_label 'Person') (concat '(' tagToEdit.properties.life-dates ')')}}</td>
-                  </tr>
-                  <tr>
-                    <td class="uk-table-shrink uk-text-bold">Type</td>
-                    <td class="uk-table-expand">{{tagToEdit.type_label}}</td>
-                  </tr>
-                  <tr>
-                    <td class="uk-table-shrink uk-text-bold">Description</td>
-                    <td class="uk-table-expand">{{tagToEdit.properties.description}}</td>
-                  </tr>
-                </tbody>
-              </table> --}}
+              <EntityForm @entity={{this.tagToEdit}} @save={{perform saveEntity tagToEdit}} class="entity-form">
+
+                <TagTags @tagTags={{this.tagTags}} @tagTagsToAdd={{this.tagTagsToAdd}} @change={{action "collectExtraAttrs"}} />
+
+              </EntityForm>
+
             {{/if}}
             <section class="uk-form-controls uk-margin">
               <UkButton @color="secondary" @on-click={{action "removeTag"}}>
@@ -220,7 +209,7 @@
                   Save
                 </UkButton>
               </div>
-              
+
             </fieldset>
           {{else}}
           {{/if}}
@@ -277,7 +266,7 @@
           @editTag={{perform editTag}} @contenteditable={{this.editLetter}}>
         </LettersView>
       </div>
-      <section class='uk-margin'>
+      <section class="uk-margin">
         <UkButton @color="primary" @on-click={{perform this.updateLetter}}>Save Letter</UkButton>
         {{#if this.editLetter}}
           <UkButton @color="secondary" @on-click={{action (toggle "editLetter" this)}}>Disable Edit Letter</UkButton>

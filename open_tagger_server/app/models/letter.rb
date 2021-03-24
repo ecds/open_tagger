@@ -8,6 +8,8 @@ class Letter < ApplicationRecord
 #  include Elasticsearch::Model
  # include Elasticsearch::Model::Callbacks
 
+  has_paper_trail
+
   before_save :flag_letter
   before_save :double_check
 
@@ -99,7 +101,7 @@ class Letter < ApplicationRecord
     list = {}
     EntityType.all.each do |et|
       list[et.label] = []
-      entities_mentioned.by_type(et.label).each { |e| list[et.label].push(e)}
+      entities_mentioned.by_type(et.label).is_public?.each { |e| list[et.label].push(e)}
     end
     list
     # entities_mentioned.collect(&:label).join(', ')
@@ -124,13 +126,19 @@ class Letter < ApplicationRecord
 
     def flag_letter
       doc = Nokogiri::XML(content)
+      flag_count = []
       EntityType.all.each do |type|
         next if doc.xpath("//#{type.label}").empty?
         doc.xpath("//#{type.label}").each do |tag|
-          if tag['class'] && tag['class'].include?('flagged')
-            self.flagged = true
+          if tag['class'] && tag['class'].include?('flag') && tag.has_attribute?('profile_id')
+            flag_count.push(tag)
           end
         end
+      end
+      if flag_count.length > 0
+        self.flagged = true
+      else
+        self.flagged = false
       end
     end
 
@@ -146,12 +154,29 @@ class Letter < ApplicationRecord
         doc.xpath("//#{type.label}").each do |tag|
           if tag.has_attribute? 'profile_id'
             next if !validate_uuid(tag['profile_id'])
+	  begin
             entity = Entity.find(tag['profile_id'])
+	  rescue ActiveRecord::RecordNotFound
+            next
+	  end
             next if entity.nil?
-            next if self.entities_mentioned.include? entity
-            self.entities_mentioned << entity
+            if !self.entities_mentioned.include? entity
+              self.entities_mentioned << entity
+            end
+            check_tag_tags(tag, entity)
           end
         end
+      end
+    end
+
+    def check_tag_tags(element, entity)
+      mention = Mention.find_by(entity: entity, letter: self)
+      ['directing', 'revision', 'star'].each do |t|
+        mention.tag_list.remove(t)
+        if element.has_attribute? t
+          mention.tag_list.add(t)
+        end
+        mention.save
       end
     end
 

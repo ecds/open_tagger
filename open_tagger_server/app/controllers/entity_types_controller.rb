@@ -4,7 +4,7 @@ class EntityTypesController < ApplicationController
   # GET /entity_types
   def index
     if params[:label]
-      render json: EntityType.where(label: params[:label])
+      render json: EntityType.find_by(label: params[:label])
     else
       render json: EntityType.all
     end
