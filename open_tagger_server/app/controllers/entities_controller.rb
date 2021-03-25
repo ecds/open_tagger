@@ -4,6 +4,12 @@ class EntitiesController < ApplicationController
 
   # GET /entities
   def index
+    if params[:search]
+      params[:query] = params[:search]
+      entities = execute_search(params)
+      render json: entities, meta: json_pagination(entities, params), each_serializer: EntitySearchSerializer
+      return
+    end
     entities = Entity.where(nil)
     if params[:type].present?
 	    params[:entity_type] = params[:type].downcase.underscore
@@ -22,15 +28,6 @@ class EntitiesController < ApplicationController
       end
     elsif params[:label].present? && params[:entity_type].present?
       entities = Entity.by_type(params[:entity_type]).get_by_label(params[:label])
-    elsif params[:search]
-      entities = entities.search(params[:search].gsub("’", '\''), { size: 200 }).records
-      if params[:entity_type]
-        entities = entities.where(entity_type: EntityType.find_by(label: params[:entity_type]))
-      end
-      # paginate entities, per_page: @items, each_serializer: SearchableEntitiesSerializer
-      if @public_only
-        entities = entities.is_public?
-      end
       render json: entities.where.not(legacy_pk: 88888888), each_erializer: @serializer #SearchableEntitiesSerializer
       return
     elsif params[:entity_type].present?
@@ -53,24 +50,7 @@ class EntitiesController < ApplicationController
   # end
 
   def search
-    page = params[:page] || 1
-    items = params[:items] || 50
-    # if params[:page]
-    #   page = params[:page][:number] || page
-    #   items = params[:page][:size] || items
-    # end
-    where = {
-      legacy_pk: { _not: 88888888 }
-    }
-    where[:e_type] = params[:entity_type] if params[:entity_type]
-    entities = Entity.search(
-      params[:query],
-      # fields: [{label: :exact}, 'description'],
-      boost_where: { label: params[:query] },
-      where: where,
-      page: page,
-      per_page: items
-    )
+    entities = self.execute_search(params)
     render json: entities, meta: json_pagination(entities, params), each_serializer: EntitySearchSerializer
   end
 
@@ -120,7 +100,33 @@ class EntitiesController < ApplicationController
     render json: { message: 'deleted' }, location: "/entities/#{@entity.id}"
   end
 
-  private
+  def execute_search(params)
+    if params[:type].present?
+      params[:entity_type] = params[:type].downcase.underscore
+    end
+    page = params[:page] || 1
+    items = params[:items] || 50
+    # if params[:page]
+    #   page = params[:page][:number] || page
+    #   items = params[:page][:size] || items
+    # end
+    # where = {
+    #   legacy_pk: { _not: 88888888 }
+    # }
+    where = {}
+    where[:e_type] = params[:entity_type] if params[:entity_type]
+    where[:is_public] = true if @public_only
+    Entity.search(
+      params[:query],
+      # fields: [{label: :exact}, 'description'],
+      boost_where: { label: params[:query] },
+      where: where,
+      page: page,
+      per_page: items
+    )
+  end
+
+      private
     # Use callbacks to share common setup or constraints between actions.
     def set_entity
       @entity = Entity.find(params[:id])

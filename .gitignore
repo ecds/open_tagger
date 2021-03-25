@@ -12,6 +12,7 @@
 *.xlsx
 *.sql
 *.bk
+config/initializers/elasticsearch.rb
 
 # Ignore the default SQLite database.
 db/*.sqlite3
