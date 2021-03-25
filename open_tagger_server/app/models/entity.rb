@@ -1,5 +1,5 @@
 class Entity < ApplicationRecord
-  searchkick
+  searchkick callbacks: :async
   include PgSearch::Model
   # include Elasticsearch::Model
   # include Elasticsearch::Model::Callbacks
@@ -74,7 +74,7 @@ class Entity < ApplicationRecord
       return true
     end
 
-    return false
+    false
   end
 
   # index_name Rails.application.class.parent_name.underscore
@@ -97,71 +97,14 @@ class Entity < ApplicationRecord
                     dmetaphone: {any_word: true, sort_only: true}
                   }
 
-  # https://medium.com/@divyanshu.verma1993/configuring-elasticsearch-on-rails-8bcbe973e9e7
-  # settings index: { number_of_shards: 1 } do
-  #   mapping dynamic: false do
-  #     indexes :label, type: :text, boost: 50#, analyzer: 'english'
-  #     indexes :properties, boost: 40, dynamic: true do
-  #     end
-  #   end
-  # end
+  def search_data
+    return { label: label } if properties.nil?
 
-  # def self.essearch(query, options = {})
-  #  properties = Entity.all.map { |e| e.properties.keys}.flatten.uniq.map {|p| "properties.#{p}"}
-  #  properties.push('label')
-  #   __elasticsearch__.search(
-  #     {
-  #       query: {
-  #         multi_match: {
-  #           query: query,
-	#     type: 'cross_fields',
-	#     fields: properties
-  #         }
-  #       }
-  #     }.merge(options)
-  #   )
-  # end
-
-  # def self.esfilter(query, options = {})
-  #   fields = ["label", "properties.links", "properties.media", "properties.profile", "properties.last_name", "properties.first_name", "properties.life_dates", "properties.description", "properties.alternate_names_spellings", "properties.alternate_names_spelling", "properties.alternate_spellings", "properties.coordinates", "properties.notes", "properties.place", "properties.author", "properties.translator", "properties.publication_information", "properties.date", "properties.proposal", "properties.beckett_digital_manuscript_project", "properties.owner", "properties.artist", "properties.location", "properties.alternative_spellings", "properties.artist_alternate_spellings", "properties.owner_location_accession_number_current", "properties.owner_location_accession_number_contemporaneous", "properties.authors", "properties.comment", "properties.publication", "properties.publication_format", "properties.director", "properties.event_type", "properties.place_date", "properties.performed_by", "properties.attended_with", "properties.cast", "properties.city", "properties.data", "properties.staff", "properties.reason", "properties.theatre", "properties.response", "properties.personnel", "properties.staging_beckett", "properties.comments", "properties.translated_into", "properties.translated_title", "properties.composer", "properties.alternative_titles", "properties.porposal"]
-
-  #   query_options = {
-  #     bool: {
-  #       must: [{
-  #         multi_match: {
-  #           query:      query,
-	#     #type: 'most_fields',
-  #           fields: fields,
-	#     fuzziness: 'AUTO'
-  #         }
-  #       }]
-  #     }
-  #   }
-  #   if options[:filter]
-  #     query_options[:bool][:filter] = [{
-  #       term: {
-	# 	'label': options.delete(:filter).downcase
-  #       }
-  #     }]
-  #   end
-
-
-  #   __elasticsearch__.search(
-  #     {
-  #       query: query_options
-  #     }.merge(options)
-  #   )
-  # end
-  # def entity_properties
-  #   entity_type.entity_properties
-  # end
-
-  # settings index: { number_of_shards: 1 } do
-  #   mapping dynamic: false do
-  #     indexes :label, analyzer: 'english'
-  #     indexes :properties, analyzer: 'english'
-  #   end
-  # end
+    {
+      label: label,
+      e_type: e_type
+    }.merge(properties)
+  end
 
   def type_label
     entity_type.pretty_label

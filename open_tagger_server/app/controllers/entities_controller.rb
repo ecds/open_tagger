@@ -44,33 +44,34 @@ class EntitiesController < ApplicationController
     paginate entities.where.not(legacy_pk: 88888888), per_page: @items, each_serializer: @serializer
   end
 
-  def search
-    entities = Entity.where.not(legacy_pk: 88888888).search_by_label(params[:query]).by_type(params[:type].downcase.underscore)
-    if @public_only
-      entities = entities.is_public?
-    end
-    paginate entities, per_page: @items, each_serializer: @serializer
-  end
+  # def search
+  #   entities = Entity.where.not(legacy_pk: 88888888).search_by_label(params[:query]).by_type(params[:type].downcase.underscore)
+  #   if @public_only
+  #     entities = entities.is_public?
+  #   end
+  #   paginate entities, per_page: @items, each_serializer: @serializer
+  # end
 
-  def test_search
-    page = 1
-    items = 50
-    if params[:page]
-      page = params[:page][:number] || page
-      items = params[:page][:size] || items
-    end
+  def search
+    page = params[:page] || 1
+    items = params[:items] || 50
+    # if params[:page]
+    #   page = params[:page][:number] || page
+    #   items = params[:page][:size] || items
+    # end
     where = {
       legacy_pk: { _not: 88888888 }
     }
     where[:e_type] = params[:entity_type] if params[:entity_type]
     entities = Entity.search(
       params[:query],
-      fields: ['label', 'properties.description'],
+      # fields: [{label: :exact}, 'description'],
+      boost_where: { label: params[:query] },
       where: where,
       page: page,
       per_page: items
     )
-    render json: entities, meta: json_pagination(entities, params), each_serializer: @serializer
+    render json: entities, meta: json_pagination(entities, params), each_serializer: EntitySearchSerializer
   end
 
   # GET /entities/1
@@ -78,7 +79,7 @@ class EntitiesController < ApplicationController
     if @public_only
       unless @entity.is_public?
         render json: { error: 'record not found', status: '404' }, status: 404
-	return
+	      return
       end
     end
     render json: @entity, location: "/entities/#{@entity.id}", serializer: @serializer
@@ -154,11 +155,11 @@ class EntitiesController < ApplicationController
       query = "query=#{params[:query]}"
       query += "&entity_type=#{params[:entity_type]}" if params[:entity_type]
       links = {
-        first: "/entities?#{query}&page[number]=1&page[size]=#{objects.per_page}",
-        last: "/entities?#{query}&page[number]=#{objects.total_pages}&page[size]=#{objects.per_page}}"
+        first: "/test?#{query}&page=1&items=#{objects.per_page}",
+        last: "/test?#{query}&page=#{objects.total_pages}&items=#{objects.per_page}}"
       }
-      links[:prev] = "/entities?#{query}&page[number]=#{objects.previous_page}&page[size]=#{objects.per_page}}" if objects.previous_page
-      links[:next] = "/entities?#{query}&page[number]=#{objects.next_page}&page[size]=#{objects.per_page}}" if objects.next_page
+      links[:prev] = "/test?#{query}&page=#{objects.previous_page}&items=#{objects.per_page}}" if objects.previous_page
+      links[:next] = "/test?#{query}&page=#{objects.next_page}&items=#{objects.per_page}}" if objects.next_page
       {
         pagination: {
           links: links,

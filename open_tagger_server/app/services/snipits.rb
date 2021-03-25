@@ -836,3 +836,8 @@ Entity.by_type('person').each do |p|
   end
   p.save
 end
+
+Entity.all.each do |e|
+  e.e_type = e.entity_type.label
+  e.save
+end
