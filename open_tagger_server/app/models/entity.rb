@@ -155,7 +155,7 @@ class Entity < ApplicationRecord
       e_type: e_type,
       legacy_pk: legacy_pk,
       is_public: is_public
-    }.merge(properties_to_index)
+    }.merge(properties)
   end
 
   def type_label
